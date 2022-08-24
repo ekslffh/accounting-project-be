@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 @Entity
-@Table(name = "Expenditure")
+@Table(name = "expenditure")
 public class ExpenditureEntity {
     @Id
     @GeneratedValue(generator = "system-uuid")

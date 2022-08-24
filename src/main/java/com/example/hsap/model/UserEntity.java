@@ -28,5 +28,5 @@ public class UserEntity {
 
     private String birth;
     private String gender;
-    private LocalDateTime createdAt;
+    private LocalDateTime joinedAt;
 }
