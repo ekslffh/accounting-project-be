@@ -4,6 +4,7 @@ import com.example.hsap.model.CategoryEntity;
 import com.example.hsap.model.HistoryEntity;
 import com.example.hsap.repository.CategoryRepository;
 import com.example.hsap.repository.HistoryRepository;
+import com.example.hsap.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,9 +16,11 @@ import java.util.Optional;
 @Service
 public class HistoryService {
     @Autowired
-    private HistoryRepository expenditureRepository;
+    private HistoryRepository historyRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
     public List<HistoryEntity> create(HistoryEntity historyEntity) {
             validate(historyEntity);
@@ -26,35 +29,37 @@ public class HistoryService {
         Optional<CategoryEntity> category = categoryRepository.findById(historyEntity.getCategory().getId());
         if (category.isPresent()) {
             historyEntity.setCategory(category.get());
-            expenditureRepository.save(historyEntity);
-            return historyEntity.getMember().getExpenditures();
+            historyRepository.save(historyEntity);
+            return historyEntity.getMember().getHistories();
         }
         throw new RuntimeException("This category is not exists");
     }
 
     public List<HistoryEntity> retrieveAll() {
-        return expenditureRepository.findAll();
+        return historyRepository.findAll();
     }
 
     public List<HistoryEntity> update(HistoryEntity historyEntity) {
         validate(historyEntity);
-        Optional<HistoryEntity> original = expenditureRepository.findById(historyEntity.getId());
-        original.ifPresent(history -> {
-            history.setUseDate(historyEntity.getUseDate());
-            history.setCategory(historyEntity.getCategory());
+        Optional<HistoryEntity> original = historyRepository.findById(historyEntity.getId());
+        if (original.isPresent()) {
+            HistoryEntity history = original.get();
+            if (historyEntity.getUseDate() != null) history.setUseDate(historyEntity.getUseDate());
+            Optional<CategoryEntity> category = categoryRepository.findById(historyEntity.getCategory().getId());
+            category.ifPresent(history::setCategory);
             history.setIncome(historyEntity.getIncome());
             history.setExpenditure(historyEntity.getExpenditure());
-            history.setMemo(historyEntity.getMemo());
+            if (historyEntity.getMemo() != null) history.setMemo(historyEntity.getMemo());
             history.setUpdatedAt(LocalDateTime.now());
-            expenditureRepository.save(history);
-        });
-        return historyEntity.getMember().getExpenditures();
+            historyRepository.save(history);
+        }
+        return historyEntity.getMember().getHistories();
     }
 
-    public List<HistoryEntity> delete(HistoryEntity expenditureEntity) {
-        validate(expenditureEntity);
-        expenditureRepository.delete(expenditureEntity);
-        return expenditureEntity.getMember().getExpenditures();
+    public void delete(HistoryEntity historyEntity) {
+        validate(historyEntity);
+        Optional<HistoryEntity> history = historyRepository.findById(historyEntity.getId());
+        history.ifPresent(entity -> historyRepository.deleteById(entity.getId()));
     }
 
     public void validate(HistoryEntity entity) {

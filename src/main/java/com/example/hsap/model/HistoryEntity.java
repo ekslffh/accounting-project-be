@@ -1,10 +1,8 @@
 package com.example.hsap.model;
 
 import javax.persistence.*;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import java.time.LocalDateTime;
 
@@ -12,9 +10,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "expenditure")
-public class HistoryEntity {
+public class HistoryEntity extends BaseEntity{
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
@@ -28,10 +28,6 @@ public class HistoryEntity {
     private int expenditure; // 지출
 
     private String memo; // 비고
-
-    private LocalDateTime createdAt; // 생성일
-
-    private LocalDateTime updatedAt; // 수정일
 
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = false)

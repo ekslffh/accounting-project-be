@@ -5,17 +5,17 @@ import com.example.hsap.model.DepartmentEntity;
 import com.example.hsap.model.HistoryEntity;
 import com.example.hsap.model.MemberEntity;
 import com.example.hsap.repository.DepartmentRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class DepartmentService {
-    @Autowired
-    DepartmentRepository departmentRepository;
+    private final DepartmentRepository departmentRepository;
 
     public List<DepartmentEntity> create(DepartmentEntity departmentEntity) {
             validate(departmentEntity);
@@ -39,7 +39,7 @@ public class DepartmentService {
             // 아이디를 가지고 찾은 부서가 존재한다면
             if (optionalEntity.isPresent()) {
                 DepartmentEntity original = optionalEntity.get();
-                original.setName(departmentEntity.getName());
+                if (departmentEntity.getName() != null) original.setName(departmentEntity.getName());
                 original.setAsset(departmentEntity.getAsset());
                 departmentRepository.save(original);
                 return retrieveAll();
@@ -59,23 +59,20 @@ public class DepartmentService {
     }
 
     // 부서의 회원들 목록 조회하기
-    public List<MemberEntity> getMembers(DepartmentEntity departmentEntity) {
-        validate(departmentEntity);
-        DepartmentEntity department = departmentRepository.findByName(departmentEntity.getName());
+    public List<MemberEntity> getMembers(String name) {
+        DepartmentEntity department = departmentRepository.findByName(name);
         return department.getMembers();
     }
 
     // 부서의 카테고리들 조회하기
-    public List<CategoryEntity> getCategories(DepartmentEntity departmentEntity) {
-        validate(departmentEntity);
-        DepartmentEntity department = departmentRepository.findByName(departmentEntity.getName());
+    public List<CategoryEntity> getCategories(String name) {
+        DepartmentEntity department = departmentRepository.findByName(name);
         return department.getCategories();
     }
 
     // 부서의 사용내역들 조회하기
-    public List<HistoryEntity> getHistories(DepartmentEntity departmentEntity) {
-        validate(departmentEntity);
-        DepartmentEntity department = departmentRepository.findByName(departmentEntity.getName());
+    public List<HistoryEntity> getHistories(String name) {
+        DepartmentEntity department = departmentRepository.findByName(name);
         return department.getHistories();
     }
 

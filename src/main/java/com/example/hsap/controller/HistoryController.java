@@ -19,8 +19,7 @@ import java.util.List;
 @RequestMapping("/history")
 public class HistoryController {
     @Autowired
-    private HistoryService expenditureService;
-
+    private HistoryService historyService;
     @Autowired
     private MemberService memberService;
 
@@ -37,7 +36,7 @@ public class HistoryController {
                 MemberEntity memberEntity = memberService.searchById(memberId);
                 entity.setMember(memberEntity);
                 entity.setDepartment(memberEntity.getDepartment());
-                List<HistoryEntity> entities = expenditureService.create(entity);
+                List<HistoryEntity> entities = historyService.create(entity);
                 List<HistoryDTO> dtos = entities.stream().map(HistoryDTO::new).toList();
                 ResponseDTO<HistoryDTO> response = ResponseDTO.<HistoryDTO>builder()
                         .data(dtos)
@@ -51,7 +50,7 @@ public class HistoryController {
 
     @GetMapping
     public ResponseEntity<?> retrieveAll() {
-        List<HistoryEntity> expenditureEntities = expenditureService.retrieveAll();
+        List<HistoryEntity> expenditureEntities = historyService.retrieveAll();
         List<HistoryDTO> expenditureDTOS = expenditureEntities.stream().map(HistoryDTO::new).toList();
         ResponseDTO response = ResponseDTO.<HistoryDTO>builder().data(expenditureDTOS).build();
         return ResponseEntity.ok().body(response);
@@ -59,13 +58,15 @@ public class HistoryController {
 
     @PutMapping
     public ResponseEntity<?> update(
-            @RequestBody HistoryDTO expenditureDTO) {
+            @AuthenticationPrincipal String memberId,
+            @RequestBody HistoryDTO historyDTO) {
         try {
-            HistoryEntity expenditureEntity = HistoryDTO.toEntity(expenditureDTO);
-            List<HistoryEntity> expenditureEntities = expenditureService.update(expenditureEntity);
-            List<HistoryDTO> expenditureDTOS = expenditureEntities.stream().map(HistoryDTO::new).toList();
+            HistoryEntity historyEntity = HistoryDTO.toEntity(historyDTO);
+            historyEntity.setMember(memberService.searchById(memberId));
+            List<HistoryEntity> historyEntities = historyService.update(historyEntity);
+            List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<HistoryDTO>builder()
-                    .data(expenditureDTOS)
+                    .data(historyDTOS)
                     .build();
             return ResponseEntity.ok().body(response);
         } catch (Exception ex) {
@@ -75,13 +76,18 @@ public class HistoryController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> delete(@RequestBody HistoryDTO expenditureDTO) {
+    public ResponseEntity<?> delete(
+            @AuthenticationPrincipal String memberId,
+            @RequestBody HistoryDTO history) {
         try {
-            HistoryEntity expenditureEntity = HistoryDTO.toEntity(expenditureDTO);
-            List<HistoryEntity> expenditureEntities = expenditureService.delete(expenditureEntity);
-            List<HistoryDTO> expenditureDTOS = expenditureEntities.stream().map(HistoryDTO::new).toList();
+            HistoryEntity historyEntity = HistoryEntity.builder().id(history.getId()).build();
+//            HistoryEntity historyEntity = HistoryDTO.toEntity(history);
+            historyService.delete(historyEntity);
+            MemberEntity member = memberService.searchById(memberId);
+            List<HistoryEntity> historyEntities = member.getHistories();
+            List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<HistoryDTO>builder()
-                    .data(expenditureDTOS)
+                    .data(historyDTOS)
                     .build();
             return ResponseEntity.ok().body(response);
         } catch (Exception ex) {

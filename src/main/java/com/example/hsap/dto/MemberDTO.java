@@ -1,6 +1,12 @@
 package com.example.hsap.dto;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.example.hsap.model.AuthorityEntity;
+import com.example.hsap.model.Gender;
 import com.example.hsap.model.MemberEntity;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -22,10 +28,16 @@ public class MemberDTO {
     private String password;
     private String name;
     private String birth;
-    private String gender;
+    private Gender gender;
     private int asset;
-    private LocalDateTime joinedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private DepartmentDTO department;
+    private Set<AuthorityDTO> authorityDTOSet = new HashSet<>();
+
+    public void addAuthority(AuthorityDTO authorityDTO) {
+        authorityDTOSet.add(authorityDTO);
+    }
 
     public MemberDTO(MemberEntity memberEntity) {
         this.id = memberEntity.getId();
@@ -35,20 +47,25 @@ public class MemberDTO {
         this.birth = memberEntity.getBirth();
         this.gender = memberEntity.getGender();
         this.asset = memberEntity.getAsset();
-        this.joinedAt = memberEntity.getJoinedAt();
+        this.createdAt = memberEntity.getCreatedAt();
+        this.updatedAt = memberEntity.getUpdatedAt();
+        this.authorityDTOSet = memberEntity.getAuthorityNames().stream().map(
+                authority -> new AuthorityDTO(authority.getAuthorityName())
+        ).collect(Collectors.toSet());
     }
+
     public static MemberEntity toEntity(MemberDTO memberDTO) {
-        return MemberEntity.builder()
-                .id(memberDTO.getId())
-                .department(DepartmentDTO.toEntity(memberDTO.getDepartment()))
-                .email(memberDTO.getEmail())
-                .password(memberDTO.getPassword())
-                .name(memberDTO.getName())
-                .birth(memberDTO.getBirth())
-                .gender(memberDTO.getGender())
-                .asset(memberDTO.getAsset())
-                .joinedAt(memberDTO.getJoinedAt())
-                .build();
+        MemberEntity memberEntity = new MemberEntity();
+        memberEntity.setId(memberDTO.getId());
+        memberEntity.setDepartment(DepartmentDTO.toEntity(memberDTO.getDepartment()));
+        memberEntity.setEmail(memberDTO.getEmail());
+        memberEntity.setPassword(memberDTO.getPassword());
+        memberEntity.setName(memberDTO.getName());
+        memberEntity.setBirth(memberDTO.getBirth());
+        memberEntity.setGender(memberDTO.getGender());
+        memberEntity.setAsset(memberDTO.getAsset());
+        memberEntity.setAuthorities(memberDTO.getAuthorityDTOSet().stream().map(authorityDTO -> new AuthorityEntity(authorityDTO.getAuthorityName())).collect(Collectors.toSet()));
+        return memberEntity;
     }
 
 }

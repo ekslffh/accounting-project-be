@@ -1,7 +1,10 @@
 package com.example.hsap.controller;
 
 import com.example.hsap.dto.*;
+import com.example.hsap.model.CategoryEntity;
 import com.example.hsap.model.DepartmentEntity;
+import com.example.hsap.model.HistoryEntity;
+import com.example.hsap.model.MemberEntity;
 import com.example.hsap.service.DepartmentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +50,7 @@ public class DepartmentController {
         return ResponseEntity.ok().body(response);
     }
 
-    // 해당 부서 조회
+    // 이름으로 해당 부서 조회
     @GetMapping
     public ResponseEntity<?> retrieve(@RequestParam String name) {
         DepartmentEntity entity = departmentService.retrieve(name);
@@ -97,19 +100,43 @@ public class DepartmentController {
 
     // 부서별 멤버들 조회 (name 필요)
     @GetMapping("/members")
-    public List<MemberDTO> getMembers(@RequestBody DepartmentEntity entity) {
-        return departmentService.getMembers(entity).stream().map(MemberDTO::new).toList();
+    public ResponseEntity<?> getMembers(@RequestParam String name) {
+        try {
+            List<MemberEntity> entities = departmentService.getMembers(name);
+            List<MemberDTO> dtos = entities.stream().map(MemberDTO::new).toList();
+            ResponseDTO response = ResponseDTO.<MemberDTO>builder().data(dtos).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            ResponseDTO response = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     // 부서별 카테고리들 조회 (name 필요)
     @GetMapping("/categories")
-    public List<CategoryDTO> getCategories(@RequestBody DepartmentEntity entity) {
-        return departmentService.getCategories(entity).stream().map(CategoryDTO::new).toList();
+    public ResponseEntity<?> getCategories(@RequestParam String name) {
+        try {
+            List<CategoryEntity> entities = departmentService.getCategories(name);
+            List<CategoryDTO> dtos = entities.stream().map(CategoryDTO::new).toList();
+            ResponseDTO response = ResponseDTO.<CategoryDTO>builder().data(dtos).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            ResponseDTO response = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     // 부서별 사용내역 조회 (name 필요)
     @GetMapping("/histories")
-    public List<HistoryDTO> getHistories(@RequestBody DepartmentEntity entity) {
-        return departmentService.getHistories(entity).stream().map(HistoryDTO::new).toList();
+    public ResponseEntity<?> getHistories(@RequestParam String name) {
+        try {
+            List<HistoryEntity> entities = departmentService.getHistories(name);
+            List<HistoryDTO> dtos = entities.stream().map(HistoryDTO::new).toList();
+            ResponseDTO response = ResponseDTO.<HistoryDTO>builder().data(dtos).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            ResponseDTO response = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 }

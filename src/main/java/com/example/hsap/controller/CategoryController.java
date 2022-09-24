@@ -5,10 +5,14 @@ import com.example.hsap.dto.DepartmentDTO;
 import com.example.hsap.dto.HistoryDTO;
 import com.example.hsap.dto.ResponseDTO;
 import com.example.hsap.model.CategoryEntity;
+import com.example.hsap.model.DepartmentEntity;
 import com.example.hsap.model.HistoryEntity;
+import com.example.hsap.repository.MemberRepository;
 import com.example.hsap.service.CategoryService;
+import com.example.hsap.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -17,11 +21,19 @@ import java.util.List;
 public class CategoryController {
     @Autowired
     CategoryService categoryService;
+    @Autowired
+    MemberService memberService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody CategoryDTO categoryDTO) {
+    public ResponseEntity<?> create(
+            @RequestBody CategoryDTO categoryDTO) {
         try {
             CategoryEntity categoryEntity = CategoryDTO.toEntity(categoryDTO);
+//            CategoryEntity categoryEntity = CategoryEntity.builder()
+//                    .title(categoryDTO.getTitle())
+//                    .description(categoryDTO.getDescription())
+//                    .department(department)
+//                    .build();
             List<CategoryEntity> entities = categoryService.create(categoryEntity);
             List<CategoryDTO> dtos = entities.stream().map(CategoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<CategoryDTO>builder().data(dtos).build();
@@ -49,6 +61,11 @@ public class CategoryController {
     public ResponseEntity<?> update(@RequestBody CategoryDTO categoryDTO) {
         try {
             CategoryEntity categoryEntity = CategoryDTO.toEntity(categoryDTO);
+//            CategoryEntity categoryEntity = CategoryEntity.builder()
+//                    .id(categoryDTO.getId())
+//                    .title(categoryDTO.getTitle())
+//                    .description(categoryDTO.getDescription())
+//                    .build();
             List<CategoryEntity> entities = categoryService.update(categoryEntity);
             List<CategoryDTO> dtos = entities.stream().map(CategoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<CategoryDTO>builder()
@@ -62,9 +79,16 @@ public class CategoryController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> delete(@RequestBody CategoryDTO categoryDTO) {
+    public ResponseEntity<?> delete(
+            @AuthenticationPrincipal String memberId,
+            @RequestBody CategoryDTO categoryDTO) {
         try {
-            CategoryEntity categoryEntity = CategoryDTO.toEntity(categoryDTO);
+            DepartmentEntity department = DepartmentEntity.builder().name(categoryDTO.getDepartment().getName()).build();
+            CategoryEntity categoryEntity = CategoryEntity.builder()
+                    .id(categoryDTO.getId())
+                    .department(department)
+                    .build();
+//            CategoryEntity categoryEntity = CategoryDTO.toEntity(categoryDTO);
             List<CategoryEntity> entities = categoryService.delete(categoryEntity);
             List<CategoryDTO> dtos = entities.stream().map(CategoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<CategoryDTO>builder()
@@ -79,10 +103,9 @@ public class CategoryController {
 
     // id 필수!
     @GetMapping("/histories")
-    public ResponseEntity<?> getHistories(@RequestBody CategoryDTO categoryDTO) {
+    public ResponseEntity<?> getHistories(@RequestParam String id) {
             try {
-                CategoryEntity categoryEntity = CategoryDTO.toEntity(categoryDTO);
-                List<HistoryEntity> expenditureEntities = categoryService.getHistories(categoryEntity);
+                List<HistoryEntity> expenditureEntities = categoryService.getHistories(id);
                 List<HistoryDTO> expenditureDTOS = expenditureEntities.stream().map(HistoryDTO::new).toList();
                 ResponseDTO response = ResponseDTO.<HistoryDTO>builder()
                         .data(expenditureDTOS)

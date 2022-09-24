@@ -10,9 +10,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "department", uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
-public class DepartmentEntity {
+public class DepartmentEntity extends BaseEntity {
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
@@ -23,11 +25,11 @@ public class DepartmentEntity {
 
     private int asset;
 
-    @OneToMany(mappedBy = "department")
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
     @ToString.Exclude
     List<MemberEntity> members = new ArrayList<>();
 
-    @OneToMany(mappedBy = "department")
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<HistoryEntity> histories = new ArrayList<>();
 

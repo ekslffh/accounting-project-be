@@ -1,56 +1,28 @@
 package com.example.hsap.controller;
 
-import com.example.hsap.dto.HistoryDTO;
-import com.example.hsap.dto.MemberDTO;
-import com.example.hsap.dto.ResponseDTO;
+import com.example.hsap.dto.*;
+import com.example.hsap.model.CategoryEntity;
 import com.example.hsap.model.HistoryEntity;
 import com.example.hsap.model.MemberEntity;
 import com.example.hsap.security.TokenProvider;
 import com.example.hsap.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/member")
 public class MemberController {
     @Autowired
     MemberService memberService;
 
     @Autowired
     TokenProvider tokenProvider;
-
-    @PostMapping("/signup")
-    public ResponseEntity<?> registerMember(@RequestBody MemberDTO dto) {
-        try {
-            MemberEntity entity = MemberDTO.toEntity(dto);
-            MemberEntity savedEntity = memberService.create(entity);
-            MemberDTO responseDTO = new MemberDTO(savedEntity);
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception ex) {
-            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
-    @PostMapping("/signin")
-    public ResponseEntity<?> authenticate(@RequestBody MemberDTO memberDTO) {
-
-        MemberEntity member = memberService.getByCredentials(
-                memberDTO.getEmail(),
-                memberDTO.getPassword());
-
-        if (member != null) {
-            final String token = tokenProvider.create(member);
-            final MemberDTO responseMemberDTO = new MemberDTO(member);
-            responseMemberDTO.setToken(token);
-            return ResponseEntity.ok().body(responseMemberDTO);
-        } else {
-            ResponseDTO response = ResponseDTO.builder().error("Login failed").build();
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
 
     @GetMapping
     public ResponseEntity<?> retrieveAll() {
@@ -73,17 +45,90 @@ public class MemberController {
 //        }
 //    }
 
-    @GetMapping("/expenditures")
-    public ResponseEntity<?> getExpenditures(@RequestBody MemberDTO memberDTO) {
+    @GetMapping("/histories")
+    public ResponseEntity<?> getHistories(@AuthenticationPrincipal String memberId) {
         try {
-            MemberEntity memberEntity = MemberDTO.toEntity(memberDTO);
-            List<HistoryEntity> expenditureEntities = memberService.getExpenditures(memberEntity);
-            List<HistoryDTO> expenditureDTOS = expenditureEntities.stream().map(HistoryDTO::new).toList();
-            ResponseDTO response = ResponseDTO.<HistoryDTO>builder().data(expenditureDTOS).build();
+            List<HistoryEntity> historyEntities = memberService.getHistories(memberId);
+            List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
+            ResponseDTO response = ResponseDTO.<HistoryDTO>builder().data(historyDTOS).build();
             return ResponseEntity.ok().body(response);
         } catch (Exception ex) {
             ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
             return ResponseEntity.badRequest().body(response);
         }
     }
+
+    @GetMapping("/categories")
+    public ResponseEntity<?> getCategories(@AuthenticationPrincipal String memberId) {
+        try {
+            List<CategoryEntity> categories = memberService.getCategories(memberId);
+            List<CategoryDTO> categoryDTOS = categories.stream().map(CategoryDTO::new).toList();
+            ResponseDTO response = ResponseDTO.<CategoryDTO>builder().data(categoryDTOS).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+}
+@RestController
+@RequestMapping("/auth")
+class AuthController {
+    @Autowired
+    MemberService memberService;
+    @Autowired
+    TokenProvider tokenProvider;
+
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerMember(@RequestBody MemberDTO dto) {
+        try {
+            dto.addAuthority(new AuthorityDTO("ROLE_USER"));
+            MemberEntity entity = MemberDTO.toEntity(dto);
+            entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+            MemberEntity savedEntity = memberService.create(entity);
+            MemberDTO responseDTO = new MemberDTO(savedEntity);
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<?> authenticate(@RequestBody MemberDTO memberDTO) {
+        MemberEntity member = memberService.getByCredentials(
+                memberDTO.getEmail(),
+                memberDTO.getPassword(),
+                passwordEncoder);
+        if (member != null) {
+            final String token = tokenProvider.create(member);
+            final MemberDTO responseMemberDTO = new MemberDTO(member);
+            responseMemberDTO.setToken(token);
+            return ResponseEntity.ok().body(responseMemberDTO);
+        } else {
+            ResponseDTO response = ResponseDTO.builder().error("Login failed").build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public String helloAdmin() {
+        return "hello admin page";
+    }
+
+    @GetMapping("/leader")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
+    public String helloLeader() {
+        return "hello leader page";
+    }
+
+    @GetMapping("/user")
+    @PreAuthorize("hasAnyRole('USER')")
+    public String helloUser() {
+        return "hello user page";
+    }
+
 }

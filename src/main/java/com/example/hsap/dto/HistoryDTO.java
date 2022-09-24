@@ -23,30 +23,34 @@ public class HistoryDTO {
     private MemberDTO member; // 유저정보
     private CategoryDTO category;
 
+    private DepartmentDTO department;
+
     public HistoryDTO(HistoryEntity historyEntity) {
         this.id = historyEntity.getId();
         this.useDate = historyEntity.getUseDate();
         this.income = historyEntity.getIncome();
         this.expenditure = historyEntity.getExpenditure();
         this.member = new MemberDTO(historyEntity.getMember());
+        this.department = new DepartmentDTO(historyEntity.getDepartment());
         this.memo = historyEntity.getMemo();
         this.category = new CategoryDTO(historyEntity.getCategory());
         this.createdAt = historyEntity.getCreatedAt();
         this.updatedAt = historyEntity.getUpdatedAt();
     }
 
-    public static HistoryEntity toEntity(HistoryDTO expenditureDTO) {
-        // category에 아이디만 넣어서 주면 된다.
-        CategoryEntity categoryEntity = CategoryEntity.builder().id(expenditureDTO.getCategory().getId()).build();
-        return HistoryEntity.builder()
-                .id(expenditureDTO.getId())
-                .useDate(expenditureDTO.getUseDate())
-                .income(expenditureDTO.getIncome())
-                .expenditure(expenditureDTO.getExpenditure())
-                .memo(expenditureDTO.getMemo())
-                .createdAt(expenditureDTO.getCreatedAt())
-                .updatedAt(expenditureDTO.getUpdatedAt())
-                .category(categoryEntity)
-                .build();
+    public static HistoryEntity toEntity(HistoryDTO dto) {
+//         category에 아이디만 넣어서 주면 된다.
+           CategoryEntity categoryEntity = CategoryEntity.builder().id(dto.getCategory().getId()).build();
+           HistoryEntity entity =  HistoryEntity.builder()
+                    .id(dto.getId())
+                    .useDate(dto.getUseDate())
+                    .income(dto.getIncome())
+                    .expenditure(dto.getExpenditure())
+                    .memo(dto.getMemo())
+                    .category(categoryEntity)
+                    .build();
+           entity.setCreatedAt(dto.getCreatedAt());
+           entity.setUpdatedAt(dto.getUpdatedAt());
+           return entity;
     }
 }

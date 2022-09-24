@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,16 +33,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.info("Filter is running");
             // 토큰 검사하기. JWT이므로 인가 서버에 요청하지 않고도 검증 가능
             if (token != null && !token.equalsIgnoreCase("null")) {
-                // userId 가져오기. 위조된 경우 예외 처리된다.
-                String memberId = tokenProvider.validateAndGetUserId(token);
-                log.info("Authenticated user ID : " + memberId);
+                // 토큰 가져오기. 위조된 경우 예외 처리된다.
+                Authentication authentication = tokenProvider.getAuthentication(token);
+//                String memberId = tokenProvider.validateAndGetUserId(token);
+//                log.info("Authenticated user ID : " + memberId);
                 // 인증 완료. SecurityContextHolder에 등록해야 인증된 사용자라고 생각한다.
-                AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        memberId,
-                        null,
-                        AuthorityUtils.NO_AUTHORITIES
-                );
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+//                AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+//                        memberId,
+//                        null,
+//                        AuthorityUtils.NO_AUTHORITIES
+//                );
+//                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
                 securityContext.setAuthentication(authentication);
                 SecurityContextHolder.setContext(securityContext);
