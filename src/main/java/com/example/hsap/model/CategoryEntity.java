@@ -2,6 +2,7 @@ package com.example.hsap.model;
 
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Where;
 import javax.persistence.*;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "category")
+@Where(clause = "deleted = false")
 public class CategoryEntity extends BaseEntity{
     @Id
     @GeneratedValue(generator = "system-uuid")
@@ -25,10 +27,12 @@ public class CategoryEntity extends BaseEntity{
 
     private String description;
 
+    private boolean deleted = Boolean.FALSE;
+
     @ManyToOne
     private DepartmentEntity department;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category")
     @ToString.Exclude
     private List<HistoryEntity> histories;
 }

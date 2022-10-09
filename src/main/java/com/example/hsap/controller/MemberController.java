@@ -4,8 +4,16 @@ import com.example.hsap.dto.*;
 import com.example.hsap.model.CategoryEntity;
 import com.example.hsap.model.HistoryEntity;
 import com.example.hsap.model.MemberEntity;
+import com.example.hsap.security.MemberDetails;
 import com.example.hsap.security.TokenProvider;
 import com.example.hsap.service.MemberService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.nurigo.sdk.NurigoApp;
+import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
+import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,12 +25,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/member")
+@RequiredArgsConstructor
 public class MemberController {
-    @Autowired
-    MemberService memberService;
-
-    @Autowired
-    TokenProvider tokenProvider;
+    private final MemberService memberService;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @GetMapping
     public ResponseEntity<?> retrieveAll() {
@@ -32,23 +38,49 @@ public class MemberController {
         return ResponseEntity.ok().body(entities);
     }
 
-//    @PutMapping
-//    public ResponseEntity<?> update(@RequestBody MemberDTO memberDTO) {
-//        try {
-//            MemberEntity member = MemberDTO.toEntity(memberDTO);
-//            MemberEntity entity = memberService.update(member);
-//            MemberDTO dto = new MemberDTO(entity);
-//            return ResponseEntity.ok().body(dto);
-//        } catch (Exception ex) {
-//            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
-//            return ResponseEntity.badRequest().body(response);
-//        }
-//    }
+    @PutMapping
+    public ResponseEntity<?> update(@RequestBody MemberDTO memberDTO) {
+        try {
+            MemberEntity member = MemberDTO.toEntity(memberDTO);
+            MemberEntity entity = memberService.update(member);
+            MemberDTO dto = new MemberDTO(entity);
+            return ResponseEntity.ok().body(dto);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<?> updatePassword(@RequestBody MemberDTO memberDTO, @AuthenticationPrincipal MemberDetails principal) {
+        try {
+            MemberEntity member = memberService.searchById(principal.getUserId());
+            member.setPassword(passwordEncoder.encode(memberDTO.getPassword()));
+            MemberEntity memberEntity = memberService.updatePassword(member);
+            MemberDTO response = new MemberDTO(memberEntity);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> delete(@RequestBody MemberDTO memberDTO) {
+        try {
+            MemberEntity entity = MemberEntity.builder().email(memberDTO.getEmail()).build();
+            memberService.delete(entity);
+            return ResponseEntity.ok().body(memberDTO);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 
     @GetMapping("/histories")
-    public ResponseEntity<?> getHistories(@AuthenticationPrincipal String memberId) {
+    public ResponseEntity<?> getHistories(@AuthenticationPrincipal MemberDetails principal) {
         try {
-            List<HistoryEntity> historyEntities = memberService.getHistories(memberId);
+
+            List<HistoryEntity> historyEntities = memberService.getHistories(principal.getUserId());
             List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<HistoryDTO>builder().data(historyDTOS).build();
             return ResponseEntity.ok().body(response);
@@ -59,9 +91,9 @@ public class MemberController {
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<?> getCategories(@AuthenticationPrincipal String memberId) {
+    public ResponseEntity<?> getCategories(@AuthenticationPrincipal MemberDetails principal) {
         try {
-            List<CategoryEntity> categories = memberService.getCategories(memberId);
+            List<CategoryEntity> categories = memberService.getCategories(principal.getUserId());
             List<CategoryDTO> categoryDTOS = categories.stream().map(CategoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<CategoryDTO>builder().data(categoryDTOS).build();
             return ResponseEntity.ok().body(response);
@@ -70,16 +102,53 @@ public class MemberController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
+    @GetMapping("/principal")
+    public ResponseEntity<?> getMemberPrincipal(@AuthenticationPrincipal MemberDetails principal) {
+        try {
+            MemberEntity member = memberService.searchById(principal.getUserId());
+            MemberDTO memberDTO = new MemberDTO(member);
+            return ResponseEntity.ok().body(memberDTO);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
 }
 @RestController
+@Slf4j
 @RequestMapping("/auth")
+//@RequiredArgsConstructor
 class AuthController {
     @Autowired
-    MemberService memberService;
+    private MemberService memberService;
     @Autowired
-    TokenProvider tokenProvider;
+    private TokenProvider tokenProvider;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    final DefaultMessageService messageService;
+    public AuthController() {
+        this.messageService = NurigoApp.INSTANCE.initialize("NCSR5GMS44I8NTTO", "RVJZQIDR8UBSLQYITVLCYWVL437MDKZC", "https://api.coolsms.co.kr");
+    }
 
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @PostMapping("/phone")
+    public ResponseEntity<?> phoneAuthenticate(@RequestBody MessageInfo messageInfo) {
+        log.info("receiver 전화번호: ", messageInfo.getReceiver());
+        Message message = new Message();
+        // 발신번호 및 수신번호는 반드시 01012345678 형태로 입력되어야 합니다.
+        message.setFrom("01084819926");
+        message.setTo(messageInfo.getReceiver());
+        // 랜덤 4자리 수 전송
+        String authNumber = MessageInfo.numberGen(4, 1);
+        message.setText("인증번호[" + authNumber + "]");
+        SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
+        return ResponseEntity.ok().body(authNumber);
+    }
+
+    @GetMapping("/email")
+    public boolean checkDuplicateEmail(@RequestParam String email) {
+        if (email == null || email.equals("")) return false;
+        // 중복되지 않았을 때
+        return memberService.checkDuplicateEmail(email);
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerMember(@RequestBody MemberDTO dto) {
@@ -102,6 +171,7 @@ class AuthController {
                 memberDTO.getEmail(),
                 memberDTO.getPassword(),
                 passwordEncoder);
+        // 인증 성공
         if (member != null) {
             final String token = tokenProvider.create(member);
             final MemberDTO responseMemberDTO = new MemberDTO(member);
@@ -120,7 +190,7 @@ class AuthController {
     }
 
     @GetMapping("/leader")
-    @PreAuthorize("hasAnyRole('ADMIN', 'LEADER')")
+    @PreAuthorize("hasAnyRole('LEADER')")
     public String helloLeader() {
         return "hello leader page";
     }

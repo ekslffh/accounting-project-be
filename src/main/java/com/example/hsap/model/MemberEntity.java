@@ -2,9 +2,9 @@ package com.example.hsap.model;
 
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Where;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "member", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
+@Where(clause = "deleted = false")
 public class MemberEntity extends BaseEntity{
     @Id
     @GeneratedValue(generator = "system-uuid")
@@ -37,10 +38,14 @@ public class MemberEntity extends BaseEntity{
 
     private int asset;
 
+    private boolean deleted = Boolean.FALSE;
+
     private String birth;
 
-    @Enumerated(value = EnumType.STRING)
-    private Gender gender;
+    private String phoneNumber;
+
+//    @Enumerated(value = EnumType.STRING)
+//    private Gender gender;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
@@ -57,11 +62,11 @@ public class MemberEntity extends BaseEntity{
             inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")})
     private Set<AuthorityEntity> authorities;
 
-    public Set<AuthorityEntity> getAuthorityNames() {
-        return this.authorities;
-    }
+//    public Set<AuthorityEntity> getAuthorityNames() {
+//        return this.authorities;
+//    }
 
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Collection<? extends GrantedAuthority> getGrantedAuthorities() {
        List<GrantedAuthority> grantedAuthorities = authorities.stream()
                .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                .collect(Collectors.toList());

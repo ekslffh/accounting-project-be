@@ -25,7 +25,7 @@ public class TokenProvider {
     private static final String AUTHORITIES_KEY = "auth";
 
     public String create(MemberEntity memberEntity) {
-        String authorities = memberEntity.getAuthorities().stream()
+        String authorities = memberEntity.getGrantedAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
@@ -67,7 +67,8 @@ public class TokenProvider {
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                         .map(SimpleGrantedAuthority::new).toList();
 
-        User principal = new User(claims.getSubject(), "", authorities);
+        User principal2 = new User(claims.getSubject(), "", authorities);
+        MemberDetails principal = new MemberDetails(claims.getSubject(), authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }

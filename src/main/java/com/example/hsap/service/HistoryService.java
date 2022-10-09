@@ -2,11 +2,12 @@ package com.example.hsap.service;
 
 import com.example.hsap.model.CategoryEntity;
 import com.example.hsap.model.HistoryEntity;
+import com.example.hsap.model.MemberEntity;
 import com.example.hsap.repository.CategoryRepository;
 import com.example.hsap.repository.HistoryRepository;
 import com.example.hsap.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,23 +15,21 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class HistoryService {
-    @Autowired
-    private HistoryRepository historyRepository;
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private MemberRepository memberRepository;
+    private final HistoryRepository historyRepository;
+    private final CategoryRepository categoryRepository;
+
+    private final MemberRepository memberRepository;
 
     public List<HistoryEntity> create(HistoryEntity historyEntity) {
-            validate(historyEntity);
-            historyEntity.setCreatedAt(LocalDateTime.now());
-            historyEntity.setUpdatedAt(LocalDateTime.now());
+        validate(historyEntity);
         Optional<CategoryEntity> category = categoryRepository.findById(historyEntity.getCategory().getId());
         if (category.isPresent()) {
             historyEntity.setCategory(category.get());
             historyRepository.save(historyEntity);
-            return historyEntity.getMember().getHistories();
+            MemberEntity member = historyEntity.getMember();
+            return memberRepository.save(member).getHistories();
         }
         throw new RuntimeException("This category is not exists");
     }

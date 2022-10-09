@@ -6,21 +6,19 @@ import com.example.hsap.model.HistoryEntity;
 import com.example.hsap.model.MemberEntity;
 import com.example.hsap.repository.DepartmentRepository;
 import com.example.hsap.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class MemberService {
-    @Autowired
-    MemberRepository memberRepository;
-    @Autowired
-    DepartmentRepository departmentRepository;
+    private final MemberRepository memberRepository;
+    private final DepartmentRepository departmentRepository;
 
     public MemberEntity create(MemberEntity entity) {
         validate(entity);
@@ -36,8 +34,13 @@ public class MemberService {
         }
         DepartmentEntity departmentEntity = departmentRepository.findByName(entity.getDepartment().getName());
         entity.setDepartment(departmentEntity);
-        entity.setCreatedAt(LocalDateTime.now());
         return memberRepository.save(entity);
+    }
+
+    public boolean checkDuplicateEmail(String email) {
+        // 중복되면 false return
+        if (memberRepository.existsByEmail(email)) return false;
+        else return true;
     }
 
     public List<MemberEntity> retrieveAll() {
@@ -63,27 +66,33 @@ public class MemberService {
         return null;
     }
 
-//    public MemberEntity update(MemberEntity entity) {
+    public MemberEntity update(MemberEntity entity) {
 //        validate(entity);
-//        MemberEntity findEntity = getByCredentials(entity.getEmail(), entity.getPassword());
-//        if (findEntity == null) {
-//            throw new RuntimeException("Member is not exists");
-//        }
+        MemberEntity findEntity = searchById(entity.getId());
+        if (findEntity == null) {
+            throw new RuntimeException("Member is not exists");
+        }
+        findEntity.setBirth(entity.getBirth());
+        findEntity.setPhoneNumber(entity.getPhoneNumber());
 //        findEntity.setPassword(entity.getPassword());
-//        findEntity.setName(entity.getName());
-//        findEntity.setBirth(entity.getBirth());
-//        findEntity.setGender(entity.getGender());
-//        findEntity.setAsset(entity.getAsset());
-//        return memberRepository.save(findEntity);
-//    }
+        findEntity.setName(entity.getName());
+        return memberRepository.save(findEntity);
+    }
+
+    public MemberEntity updatePassword(MemberEntity entity) {
+        return memberRepository.save(entity);
+    }
 
     public void delete(MemberEntity entity) {
-        validate(entity);
-        try {
-            memberRepository.delete(entity);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex.getMessage());
-        }
+//        validate(entity);
+//        try {
+//            memberRepository.delete(entity);
+//        } catch (Exception ex) {
+//            throw new RuntimeException(ex.getMessage());
+//        }
+        MemberEntity foundMember = memberRepository.findByEmail(entity.getEmail());
+        foundMember.setDeleted(true);
+        memberRepository.save(foundMember);
     }
 
     public List<HistoryEntity> getHistories(String memberId) {

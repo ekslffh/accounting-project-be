@@ -1,7 +1,6 @@
 package com.example.hsap.model;
 
 import javax.persistence.*;
-
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import java.time.LocalDateTime;
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "expenditure")
+@Table(name = "history")
 public class HistoryEntity extends BaseEntity{
     @Id
     @GeneratedValue(generator = "system-uuid")

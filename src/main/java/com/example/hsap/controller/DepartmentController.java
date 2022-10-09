@@ -6,8 +6,8 @@ import com.example.hsap.model.DepartmentEntity;
 import com.example.hsap.model.HistoryEntity;
 import com.example.hsap.model.MemberEntity;
 import com.example.hsap.service.DepartmentService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -15,9 +15,9 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/department")
+@RequiredArgsConstructor
 public class DepartmentController {
-    @Autowired
-    private DepartmentService departmentService;
+    private final DepartmentService departmentService;
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody DepartmentDTO dto) {

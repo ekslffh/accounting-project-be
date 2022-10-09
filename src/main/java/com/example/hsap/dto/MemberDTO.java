@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import com.example.hsap.model.AuthorityEntity;
 import com.example.hsap.model.Gender;
 import com.example.hsap.model.MemberEntity;
@@ -27,16 +26,16 @@ public class MemberDTO {
 
     private String password;
     private String name;
-    private String birth;
+
     private Gender gender;
-    private int asset;
+    private String birth;
+    private String phoneNumber;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private DepartmentDTO department;
-    private Set<AuthorityDTO> authorityDTOSet = new HashSet<>();
-
+    private Set<AuthorityDTO> authority = new HashSet<>();
     public void addAuthority(AuthorityDTO authorityDTO) {
-        authorityDTOSet.add(authorityDTO);
+        authority.add(authorityDTO);
     }
 
     public MemberDTO(MemberEntity memberEntity) {
@@ -45,11 +44,12 @@ public class MemberDTO {
         this.email = memberEntity.getEmail();
         this.name = memberEntity.getName();
         this.birth = memberEntity.getBirth();
-        this.gender = memberEntity.getGender();
-        this.asset = memberEntity.getAsset();
+        this.phoneNumber = memberEntity.getPhoneNumber();
+//        this.gender = memberEntity.getGender();
+//        this.asset = memberEntity.getAsset();
         this.createdAt = memberEntity.getCreatedAt();
         this.updatedAt = memberEntity.getUpdatedAt();
-        this.authorityDTOSet = memberEntity.getAuthorityNames().stream().map(
+        this.authority = memberEntity.getAuthorities().stream().map(
                 authority -> new AuthorityDTO(authority.getAuthorityName())
         ).collect(Collectors.toSet());
     }
@@ -62,9 +62,12 @@ public class MemberDTO {
         memberEntity.setPassword(memberDTO.getPassword());
         memberEntity.setName(memberDTO.getName());
         memberEntity.setBirth(memberDTO.getBirth());
-        memberEntity.setGender(memberDTO.getGender());
-        memberEntity.setAsset(memberDTO.getAsset());
-        memberEntity.setAuthorities(memberDTO.getAuthorityDTOSet().stream().map(authorityDTO -> new AuthorityEntity(authorityDTO.getAuthorityName())).collect(Collectors.toSet()));
+        memberEntity.setPhoneNumber(memberDTO.getPhoneNumber());
+//        memberEntity.setGender(memberDTO.getGender());
+//        memberEntity.setAsset(memberDTO.getAsset());
+        memberEntity.setAuthorities(memberDTO.getAuthority().stream().map(
+                authorityDTO -> new AuthorityEntity(authorityDTO.getAuthorityName()))
+                .collect(Collectors.toSet()));
         return memberEntity;
     }
 

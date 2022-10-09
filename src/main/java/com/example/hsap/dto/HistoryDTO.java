@@ -22,7 +22,6 @@ public class HistoryDTO {
     private LocalDateTime updatedAt;
     private MemberDTO member; // 유저정보
     private CategoryDTO category;
-
     private DepartmentDTO department;
 
     public HistoryDTO(HistoryEntity historyEntity) {

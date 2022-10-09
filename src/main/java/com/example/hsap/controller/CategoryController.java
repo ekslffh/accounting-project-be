@@ -1,39 +1,31 @@
 package com.example.hsap.controller;
 
 import com.example.hsap.dto.CategoryDTO;
-import com.example.hsap.dto.DepartmentDTO;
 import com.example.hsap.dto.HistoryDTO;
 import com.example.hsap.dto.ResponseDTO;
 import com.example.hsap.model.CategoryEntity;
 import com.example.hsap.model.DepartmentEntity;
 import com.example.hsap.model.HistoryEntity;
-import com.example.hsap.repository.MemberRepository;
 import com.example.hsap.service.CategoryService;
 import com.example.hsap.service.MemberService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/category")
+@RequiredArgsConstructor
 public class CategoryController {
-    @Autowired
-    CategoryService categoryService;
-    @Autowired
-    MemberService memberService;
+    private final CategoryService categoryService;
+
+    private final MemberService memberService;
 
     @PostMapping
     public ResponseEntity<?> create(
             @RequestBody CategoryDTO categoryDTO) {
         try {
             CategoryEntity categoryEntity = CategoryDTO.toEntity(categoryDTO);
-//            CategoryEntity categoryEntity = CategoryEntity.builder()
-//                    .title(categoryDTO.getTitle())
-//                    .description(categoryDTO.getDescription())
-//                    .department(department)
-//                    .build();
             List<CategoryEntity> entities = categoryService.create(categoryEntity);
             List<CategoryDTO> dtos = entities.stream().map(CategoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<CategoryDTO>builder().data(dtos).build();
@@ -45,9 +37,9 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<?> retrieveByDepartment(@RequestBody DepartmentDTO dto) {
+    public ResponseEntity<?> retrieveByDepartment(@RequestParam String name) {
         try {
-            List<CategoryEntity> entities = categoryService.retrieveByDepartment(dto.getName());
+            List<CategoryEntity> entities = categoryService.retrieveByDepartment(name);
             List<CategoryDTO> dtos = entities.stream().map(CategoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<CategoryDTO>builder().data(dtos).build();
             return ResponseEntity.ok().body(response);
@@ -61,11 +53,6 @@ public class CategoryController {
     public ResponseEntity<?> update(@RequestBody CategoryDTO categoryDTO) {
         try {
             CategoryEntity categoryEntity = CategoryDTO.toEntity(categoryDTO);
-//            CategoryEntity categoryEntity = CategoryEntity.builder()
-//                    .id(categoryDTO.getId())
-//                    .title(categoryDTO.getTitle())
-//                    .description(categoryDTO.getDescription())
-//                    .build();
             List<CategoryEntity> entities = categoryService.update(categoryEntity);
             List<CategoryDTO> dtos = entities.stream().map(CategoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<CategoryDTO>builder()
@@ -80,7 +67,6 @@ public class CategoryController {
 
     @DeleteMapping
     public ResponseEntity<?> delete(
-            @AuthenticationPrincipal String memberId,
             @RequestBody CategoryDTO categoryDTO) {
         try {
             DepartmentEntity department = DepartmentEntity.builder().name(categoryDTO.getDepartment().getName()).build();

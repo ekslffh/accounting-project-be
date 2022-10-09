@@ -9,7 +9,6 @@ import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 
-
 @Data
 @MappedSuperclass // 상속받는 엔터티에 속성을 추가
 @EntityListeners(value = AuditingEntityListener.class)

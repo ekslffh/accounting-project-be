@@ -5,10 +5,11 @@ import com.example.hsap.dto.ResponseDTO;
 import com.example.hsap.model.HistoryEntity;
 import com.example.hsap.model.MemberEntity;
 import com.example.hsap.repository.MemberRepository;
+import com.example.hsap.security.MemberDetails;
 import com.example.hsap.service.HistoryService;
 import com.example.hsap.service.MemberService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -17,23 +18,20 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/history")
+@RequiredArgsConstructor
 public class HistoryController {
-    @Autowired
-    private HistoryService historyService;
-    @Autowired
-    private MemberService memberService;
-
-    @Autowired
-    private MemberRepository memberRepository;
+    private final HistoryService historyService;
+    private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     @PostMapping
     public ResponseEntity<?> create(
-            @AuthenticationPrincipal String memberId,
+            @AuthenticationPrincipal MemberDetails principal,
             @RequestBody HistoryDTO dto) {
         try {
                 HistoryEntity entity = HistoryDTO.toEntity(dto);
                 entity.setId(null);
-                MemberEntity memberEntity = memberService.searchById(memberId);
+                MemberEntity memberEntity = memberService.searchById(principal.getUserId());
                 entity.setMember(memberEntity);
                 entity.setDepartment(memberEntity.getDepartment());
                 List<HistoryEntity> entities = historyService.create(entity);
@@ -58,11 +56,11 @@ public class HistoryController {
 
     @PutMapping
     public ResponseEntity<?> update(
-            @AuthenticationPrincipal String memberId,
+            @AuthenticationPrincipal MemberDetails principal,
             @RequestBody HistoryDTO historyDTO) {
         try {
             HistoryEntity historyEntity = HistoryDTO.toEntity(historyDTO);
-            historyEntity.setMember(memberService.searchById(memberId));
+            historyEntity.setMember(memberService.searchById(principal.getUserId()));
             List<HistoryEntity> historyEntities = historyService.update(historyEntity);
             List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<HistoryDTO>builder()
@@ -77,13 +75,13 @@ public class HistoryController {
 
     @DeleteMapping
     public ResponseEntity<?> delete(
-            @AuthenticationPrincipal String memberId,
+            @AuthenticationPrincipal MemberDetails principal,
             @RequestBody HistoryDTO history) {
         try {
             HistoryEntity historyEntity = HistoryEntity.builder().id(history.getId()).build();
 //            HistoryEntity historyEntity = HistoryDTO.toEntity(history);
             historyService.delete(historyEntity);
-            MemberEntity member = memberService.searchById(memberId);
+            MemberEntity member = memberService.searchById(principal.getUserId());
             List<HistoryEntity> historyEntities = member.getHistories();
             List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<HistoryDTO>builder()

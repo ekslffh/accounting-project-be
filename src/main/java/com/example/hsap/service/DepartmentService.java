@@ -23,9 +23,10 @@ public class DepartmentService {
             return retrieveAll();
     }
     public List<DepartmentEntity> retrieveAll() {
-        return departmentRepository.findAll();
+        List<DepartmentEntity> allDepartment = departmentRepository.findAll();
+        allDepartment.remove(0);
+        return allDepartment;
     }
-
     public DepartmentEntity retrieve(String name) {
         return departmentRepository.findByName(name);
     }
@@ -40,7 +41,7 @@ public class DepartmentService {
             if (optionalEntity.isPresent()) {
                 DepartmentEntity original = optionalEntity.get();
                 if (departmentEntity.getName() != null) original.setName(departmentEntity.getName());
-                original.setAsset(departmentEntity.getAsset());
+//                original.setAsset(departmentEntity.getAsset());
                 departmentRepository.save(original);
                 return retrieveAll();
             } else {
@@ -48,10 +49,14 @@ public class DepartmentService {
                 throw new RuntimeException("This department is not exist");
             }
     }
-    public List<DepartmentEntity> delete(DepartmentEntity entity) {
+    public List<DepartmentEntity> delete(DepartmentEntity departmentEntity) {
         try {
-            validate(entity);
-            departmentRepository.delete(entity);
+            validate(departmentEntity);
+            if (departmentEntity.getId() == null) {
+                log.warn("This department entity's id is null");
+                throw new RuntimeException("This department entity's id is null");
+            }
+            departmentRepository.delete(departmentEntity);
             return retrieveAll();
         } catch (Exception ex) {
             throw new RuntimeException("Delete department error: " + ex.getMessage());
