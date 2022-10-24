@@ -10,11 +10,9 @@ import com.example.hsap.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.NurigoApp;
+import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
 import net.nurigo.sdk.message.model.Message;
-import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
-import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -114,20 +112,18 @@ public class MemberController {
         }
     }
 }
+
 @RestController
 @Slf4j
 @RequestMapping("/auth")
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 class AuthController {
-    @Autowired
-    private MemberService memberService;
-    @Autowired
-    private TokenProvider tokenProvider;
+    private final MemberService memberService;
+    private final TokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    final DefaultMessageService messageService;
-    public AuthController() {
-        this.messageService = NurigoApp.INSTANCE.initialize("NCSR5GMS44I8NTTO", "RVJZQIDR8UBSLQYITVLCYWVL437MDKZC", "https://api.coolsms.co.kr");
-    }
+
+    // DefaultMessageService messageService =  NurigoApp.INSTANCE.initialize("API 키 입력", "API 시크릿 키 입력", "https://api.solapi.com");
+    private final DefaultMessageService messageService = NurigoApp.INSTANCE.initialize("NCS3CDJQNKS6YNXZ", "AO8BIRTEPZLKY2CMRBZ8VCY0RDPT4ASM", "https://api.solapi.com");
 
     @PostMapping("/phone")
     public ResponseEntity<?> phoneAuthenticate(@RequestBody MessageInfo messageInfo) {
@@ -139,13 +135,23 @@ class AuthController {
         // 랜덤 4자리 수 전송
         String authNumber = MessageInfo.numberGen(4, 1);
         message.setText("인증번호[" + authNumber + "]");
-        SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
+        try {
+            this.messageService.send(message);
+        } catch (NurigoMessageNotReceivedException exception) {
+            ResponseDTO response = ResponseDTO.builder().error(exception.getMessage()).build();
+            log.error("failed message list: " + exception.getFailedMessageList().toString());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception exception) {
+            ResponseDTO response = ResponseDTO.builder().error(exception.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
         return ResponseEntity.ok().body(authNumber);
     }
 
-    @GetMapping("/email")
+    // 중복: true, 중복아님: false
+    @GetMapping("/emailcheck")
     public boolean checkDuplicateEmail(@RequestParam String email) {
-        if (email == null || email.equals("")) return false;
+        if (email == null || email.equals("")) return true;
         // 중복되지 않았을 때
         return memberService.checkDuplicateEmail(email);
     }
@@ -178,7 +184,7 @@ class AuthController {
             responseMemberDTO.setToken(token);
             return ResponseEntity.ok().body(responseMemberDTO);
         } else {
-            ResponseDTO response = ResponseDTO.builder().error("Login failed").build();
+            ResponseDTO response = ResponseDTO.builder().error("로그인 실패").build();
             return ResponseEntity.badRequest().body(response);
         }
     }

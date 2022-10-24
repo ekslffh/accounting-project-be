@@ -17,6 +17,7 @@ public class DepartmentDTO {
     private int asset;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
     public DepartmentDTO(DepartmentEntity entity) {
         this.id = entity.getId();
         this.name = entity.getName();

@@ -22,14 +22,14 @@ public class CategoryService {
         validate(categoryEntity);
         // 해당 부서 존재 여부 검사
         if (!departmentRepository.existsByName(categoryEntity.getDepartment().getName())) {
-            log.warn("This department is not exists");
-            throw new RuntimeException("This department is not exits");
+            log.warn("해당 부서가 존재하지 않습니다.");
+            throw new RuntimeException("해당 부서가 존재하지 않습니다.");
         }
         DepartmentEntity department = departmentRepository.findByName(categoryEntity.getDepartment().getName());
         // 중복 검사 : 같은 부서 내에 같은 이름의 카테고리가 존재하면 안된다.
         if (categoryRepository.existsByTitleAndDepartment(categoryEntity.getTitle(), department)) {
-            log.warn("The same category exists within that department");
-            throw new RuntimeException("The same category exists within that department");
+            log.warn("한 부서내에서 카테고리명은 중복될 수 없습니다.");
+            throw new RuntimeException("한 부서내에서 카테고리명은 중복될 수 없습니다.");
         }
         categoryEntity.setDepartment(department);
         categoryRepository.save(categoryEntity);
@@ -60,8 +60,8 @@ public class CategoryService {
             // 중복 검사 : 같은 부서 내에 같은 이름의 카테고리가 존재하면 안된다.
             // 예외 : 만약 타이틀이 바뀌지 않았다면 넘어가기!!
             if (isTitleChanged && categoryRepository.existsByTitleAndDepartment(categoryEntity.getTitle(), original.getDepartment())) {
-                log.warn("The same category exists within that department");
-                throw new RuntimeException("The same category exists within that department");
+                log.warn("한 부서내에서 카테고리명은 중복될 수 없습니다.");
+                throw new RuntimeException("한 부서내에서 카테고리명은 중복될 수 없습니다.");
             }
             categoryRepository.save(original);
 //            retrieveByDepartment(categoryEntity.getDepartment().getName());

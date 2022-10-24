@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @NoArgsConstructor
@@ -24,6 +25,9 @@ public class HistoryDTO {
     private CategoryDTO category;
     private DepartmentDTO department;
 
+    private String imagePath;
+//    private List<String> imagePath;
+
     public HistoryDTO(HistoryEntity historyEntity) {
         this.id = historyEntity.getId();
         this.useDate = historyEntity.getUseDate();
@@ -32,6 +36,7 @@ public class HistoryDTO {
         this.member = new MemberDTO(historyEntity.getMember());
         this.department = new DepartmentDTO(historyEntity.getDepartment());
         this.memo = historyEntity.getMemo();
+        this.imagePath = historyEntity.getImagePath();
         this.category = new CategoryDTO(historyEntity.getCategory());
         this.createdAt = historyEntity.getCreatedAt();
         this.updatedAt = historyEntity.getUpdatedAt();
@@ -47,6 +52,7 @@ public class HistoryDTO {
                     .expenditure(dto.getExpenditure())
                     .memo(dto.getMemo())
                     .category(categoryEntity)
+                    .imagePath(dto.getImagePath())
                     .build();
            entity.setCreatedAt(dto.getCreatedAt());
            entity.setUpdatedAt(dto.getUpdatedAt());

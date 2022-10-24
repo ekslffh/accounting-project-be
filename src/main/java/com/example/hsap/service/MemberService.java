@@ -8,10 +8,12 @@ import com.example.hsap.repository.DepartmentRepository;
 import com.example.hsap.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -38,9 +40,8 @@ public class MemberService {
     }
 
     public boolean checkDuplicateEmail(String email) {
-        // 중복되면 false return
-        if (memberRepository.existsByEmail(email)) return false;
-        else return true;
+        // 중복되면 true return
+        return memberRepository.existsByEmail(email);
     }
 
     public List<MemberEntity> retrieveAll() {
@@ -91,6 +92,12 @@ public class MemberService {
 //            throw new RuntimeException(ex.getMessage());
 //        }
         MemberEntity foundMember = memberRepository.findByEmail(entity.getEmail());
+        String authorities = foundMember.getGrantedAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+        if (authorities.contains("ROLE_LEADER")) {
+            throw new RuntimeException("부서의 리더는 삭제가 불가능 합니다.");
+        }
         foundMember.setDeleted(true);
         memberRepository.save(foundMember);
     }
