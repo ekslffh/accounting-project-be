@@ -3,12 +3,7 @@ package com.example.hsap.model;
 import javax.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Builder
 @NoArgsConstructor
@@ -33,8 +28,6 @@ public class HistoryEntity extends BaseEntity{
 
     private String memo; // 비고
 
-//    @ElementCollection
-//    private List<String> imagePath = new ArrayList<>();
     private String imagePath;
 
     @ManyToOne

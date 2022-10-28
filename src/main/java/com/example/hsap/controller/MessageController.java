@@ -5,7 +5,9 @@ import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
 import net.nurigo.sdk.message.model.Balance;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.model.StorageType;
+import net.nurigo.sdk.message.request.MessageListRequest;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
+import net.nurigo.sdk.message.response.MessageListResponse;
 import net.nurigo.sdk.message.response.MultipleDetailMessageSentResponse;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
@@ -31,15 +33,15 @@ public class MessageController {
         this.messageService = NurigoApp.INSTANCE.initialize("NCSR5GMS44I8NTTO", "RVJZQIDR8UBSLQYITVLCYWVL437MDKZC", "https://api.coolsms.co.kr");
     }
 
-//    /**
-//     * 메시지 조회 예제
-//     */
-//    @GetMapping("/get-message-list")
-//    public void getMessageList() {
-//        MessageListResponse response = this.messageService.getMessageList(new MessageListRequest());
-//
-//        System.out.println(response);
-//    }
+    /**
+     * 메시지 조회 예제
+     */
+    @GetMapping("/get-message-list")
+    public void getMessageList() {
+        MessageListResponse response = this.messageService.getMessageList(new MessageListRequest());
+
+        System.out.println(response);
+    }
 
     /**
      * 단일 메시지 발송 예제
