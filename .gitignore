@@ -1,3 +1,4 @@
+# aws 에서 받은 access key를 제외해야 한다.
 HELP.md
 .gradle
 build/
@@ -36,4 +37,5 @@ out/
 ### VS Code ###
 .vscode/
 
-src/main/resources/application.yml
+### application.yml ###
+application.yml

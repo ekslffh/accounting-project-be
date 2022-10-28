@@ -44,6 +44,9 @@ public class MemberEntity extends BaseEntity{
 
     private String phoneNumber;
 
+//    @Enumerated(value = EnumType.STRING)
+//    private Gender gender;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<HistoryEntity> histories = new ArrayList<HistoryEntity>();
@@ -58,6 +61,10 @@ public class MemberEntity extends BaseEntity{
             joinColumns = {@JoinColumn(name = "id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")})
     private Set<AuthorityEntity> authorities;
+
+//    public Set<AuthorityEntity> getAuthorityNames() {
+//        return this.authorities;
+//    }
 
     public Collection<? extends GrantedAuthority> getGrantedAuthorities() {
        List<GrantedAuthority> grantedAuthorities = authorities.stream()

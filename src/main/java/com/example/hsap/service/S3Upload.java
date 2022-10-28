@@ -1,19 +1,10 @@
-package com.example.hsap.service;
-
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.SdkClientException;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -31,7 +22,7 @@ public class S3Upload {
         return useDate.getYear() + "/" + useDate.getMonth() + "/";
     }
 
-    public String upload(MultipartFile multipartFile ,LocalDateTime useDate) throws IOException {
+    public String upload(MultipartFile multipartFile , LocalDateTime useDate) throws IOException {
         String s3FileName = UUID.randomUUID() + "-" + multipartFile.getOriginalFilename();
         long size = multipartFile.getSize();
 
@@ -45,13 +36,13 @@ public class S3Upload {
         String currentFilePath = "receipts/" + getPathByUseDate(useDate) + s3FileName;
         amazonS3.putObject(
                 new PutObjectRequest(bucket, currentFilePath, multipartFile.getInputStream(), objMeta)
-                        .withCannedAcl(CannedAccessControlList.PublicReadWrite)
+                        .withCannedAcl(CannedAccessControlList.PublicRead)
         );
 
         System.out.println(amazonS3.doesObjectExist(bucket, currentFilePath));
         amazonS3.deleteObject(bucket, currentFilePath);
 
-        String imagePath = amazonS3.getUrl(bucket, "receipts/" + getPathByUseDate(useDate) + s3FileName).toString(); // 접근 가능한 url 가져오기
+        String imagePath = amazonS3.getUrl(bucket, currentFilePath).toString(); // 접근 가능한 url 가져오기
 
         return imagePath;
     }

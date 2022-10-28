@@ -43,7 +43,6 @@ public class HistoryService {
         Optional<HistoryEntity> original = historyRepository.findById(historyEntity.getId());
         if (original.isPresent()) {
             HistoryEntity history = original.get();
-            // 사용일, 카테고리, 수입 or 지출 금액, 비고 수정
             if (historyEntity.getUseDate() != null) history.setUseDate(historyEntity.getUseDate());
             Optional<CategoryEntity> category = categoryRepository.findById(historyEntity.getCategory().getId());
             category.ifPresent(history::setCategory);
@@ -51,10 +50,6 @@ public class HistoryService {
             history.setExpenditure(historyEntity.getExpenditure());
             if (historyEntity.getMemo() != null) history.setMemo(historyEntity.getMemo());
             history.setUpdatedAt(LocalDateTime.now());
-            // 영수증 이미지 수정시 넣어준다.
-            if (historyEntity.getImagePath() != null) {
-                history.setImagePath(historyEntity.getImagePath());
-            }
             historyRepository.save(history);
         }
         return historyEntity.getMember().getHistories();

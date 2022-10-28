@@ -134,7 +134,7 @@ class AuthController {
         message.setTo(messageInfo.getReceiver());
         // 랜덤 4자리 수 전송
         String authNumber = MessageInfo.numberGen(4, 1);
-        message.setText("HSAP 인증번호[" + authNumber + "]");
+        message.setText("인증번호[" + authNumber + "]");
         try {
             this.messageService.send(message);
         } catch (NurigoMessageNotReceivedException exception) {
