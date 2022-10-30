@@ -33,9 +33,9 @@ public class HistoryEntity extends BaseEntity{
 
     private String memo; // 비고
 
-//    @ElementCollection
-//    private List<String> imagePath = new ArrayList<>();
-    private String imagePath;
+    @ElementCollection
+    private List<String> imagePath = new ArrayList<>();
+//    private String imagePath;
 
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = false)

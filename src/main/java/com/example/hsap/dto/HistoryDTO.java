@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -25,8 +26,8 @@ public class HistoryDTO {
     private CategoryDTO category;
     private DepartmentDTO department;
 
-    private String imagePath;
-//    private List<String> imagePath;
+//    private String imagePath;
+    private List<String> imagePath = new ArrayList<>();
 
     public HistoryDTO(HistoryEntity historyEntity) {
         this.id = historyEntity.getId();

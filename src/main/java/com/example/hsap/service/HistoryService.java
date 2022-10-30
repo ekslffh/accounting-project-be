@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +39,13 @@ public class HistoryService {
         return historyRepository.findAll();
     }
 
+    public List<HistoryEntity> deleteReceipt(String historyId) {
+        HistoryEntity history = historyRepository.findById(historyId).orElseThrow(RuntimeException::new);
+        history.setImagePath(new ArrayList<>());
+        historyRepository.save(history);
+        return history.getMember().getHistories();
+    }
+
     public List<HistoryEntity> update(HistoryEntity historyEntity) {
         validate(historyEntity);
         Optional<HistoryEntity> original = historyRepository.findById(historyEntity.getId());
@@ -49,6 +57,9 @@ public class HistoryService {
             history.setIncome(historyEntity.getIncome());
             history.setExpenditure(historyEntity.getExpenditure());
             if (historyEntity.getMemo() != null) history.setMemo(historyEntity.getMemo());
+
+            if (historyEntity.getImagePath() != null) history.setImagePath(historyEntity.getImagePath());
+
             history.setUpdatedAt(LocalDateTime.now());
             historyRepository.save(history);
         }
