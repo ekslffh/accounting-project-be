@@ -108,7 +108,7 @@ public class HistoryController {
                 }
             }
 
-            if (path != null) dto.setImagePath(path);
+            if (path.size() != 0) dto.setImagePath(path);
 
             HistoryEntity historyEntity = HistoryDTO.toEntity(dto);
             historyEntity.setMember(memberService.searchById(principal.getUserId()));

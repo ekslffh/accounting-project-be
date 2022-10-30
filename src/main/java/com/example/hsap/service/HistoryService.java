@@ -46,6 +46,7 @@ public class HistoryService {
         return history.getMember().getHistories();
     }
 
+    // 사용일, 마테고리, 수입 Or 지출, 비고, 경로, 수정일 업데이트
     public List<HistoryEntity> update(HistoryEntity historyEntity) {
         validate(historyEntity);
         Optional<HistoryEntity> original = historyRepository.findById(historyEntity.getId());
@@ -58,7 +59,7 @@ public class HistoryService {
             history.setExpenditure(historyEntity.getExpenditure());
             if (historyEntity.getMemo() != null) history.setMemo(historyEntity.getMemo());
 
-            if (historyEntity.getImagePath() != null) history.setImagePath(historyEntity.getImagePath());
+            if (historyEntity.getImagePath().size() != 0) history.setImagePath(historyEntity.getImagePath());
 
             history.setUpdatedAt(LocalDateTime.now());
             historyRepository.save(history);
