@@ -9,6 +9,7 @@ import com.example.hsap.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class DepartmentController {
     private final DepartmentService departmentService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> create(@RequestBody DepartmentDTO dto) {
        try {
            DepartmentEntity entity = DepartmentDTO.toEntity(dto);
@@ -65,6 +67,7 @@ public class DepartmentController {
     }
 
     @PutMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> update(@RequestBody DepartmentDTO dto) {
         try {
             DepartmentEntity entity = DepartmentDTO.toEntity(dto);
@@ -83,6 +86,7 @@ public class DepartmentController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> delete(@RequestBody DepartmentDTO dto) {
         try {
             DepartmentEntity entity = DepartmentDTO.toEntity(dto);
@@ -100,6 +104,7 @@ public class DepartmentController {
 
     // 부서별 멤버들 조회 (name 필요)
     @GetMapping("/members")
+    @PreAuthorize("hasAnyRole('LEADER')")
     public ResponseEntity<?> getMembers(@RequestParam String name) {
         try {
             List<MemberEntity> entities = departmentService.getMembers(name);
@@ -128,6 +133,7 @@ public class DepartmentController {
 
     // 부서별 사용내역 조회 (name 필요)
     @GetMapping("/histories")
+    @PreAuthorize("hasAnyRole('LEADER')")
     public ResponseEntity<?> getHistories(@RequestParam String name) {
         try {
             List<HistoryEntity> entities = departmentService.getHistories(name);

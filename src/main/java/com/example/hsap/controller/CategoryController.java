@@ -10,6 +10,7 @@ import com.example.hsap.service.CategoryService;
 import com.example.hsap.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class CategoryController {
     private final MemberService memberService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('LEADER')")
     public ResponseEntity<?> create(
             @RequestBody CategoryDTO categoryDTO) {
         try {
@@ -50,6 +52,7 @@ public class CategoryController {
     }
 
     @PutMapping
+    @PreAuthorize("hasAnyRole('LEADER')")
     public ResponseEntity<?> update(@RequestBody CategoryDTO categoryDTO) {
         try {
             CategoryEntity categoryEntity = CategoryDTO.toEntity(categoryDTO);
@@ -66,6 +69,7 @@ public class CategoryController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAnyRole('LEADER')")
     public ResponseEntity<?> delete(
             @RequestBody CategoryDTO categoryDTO) {
         try {
@@ -89,6 +93,7 @@ public class CategoryController {
 
     // id 필수!
     @GetMapping("/histories")
+    @PreAuthorize("hasAnyRole('LEADER')")
     public ResponseEntity<?> getHistories(@RequestParam String id) {
             try {
                 List<HistoryEntity> expenditureEntities = categoryService.getHistories(id);

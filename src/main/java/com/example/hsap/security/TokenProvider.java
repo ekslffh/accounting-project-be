@@ -31,7 +31,7 @@ public class TokenProvider {
 
         // 기한은 지금부터 1일로 설정
         Date expiryDate = Date.from(
-                Instant.now().plus(1, ChronoUnit.DAYS)
+                Instant.now().plus(1, ChronoUnit.HALF_DAYS)
         );
 
         return Jwts.builder()
@@ -67,7 +67,7 @@ public class TokenProvider {
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                         .map(SimpleGrantedAuthority::new).toList();
 
-        User principal2 = new User(claims.getSubject(), "", authorities);
+//        User principal2 = new User(claims.getSubject(), "", authorities);
         MemberDetails principal = new MemberDetails(claims.getSubject(), authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);

@@ -63,6 +63,7 @@ public class MemberController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAnyRole('LEADER')")
     public ResponseEntity<?> delete(@RequestBody MemberDTO memberDTO) {
         try {
             MemberEntity entity = MemberEntity.builder().email(memberDTO.getEmail()).build();
