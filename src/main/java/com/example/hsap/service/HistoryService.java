@@ -20,7 +20,6 @@ import java.util.Optional;
 public class HistoryService {
     private final HistoryRepository historyRepository;
     private final CategoryRepository categoryRepository;
-
     private final MemberRepository memberRepository;
 
     public List<HistoryEntity> create(HistoryEntity historyEntity) {
@@ -46,23 +45,23 @@ public class HistoryService {
         return history.getMember().getHistories();
     }
 
-    // 사용일, 마테고리, 수입 Or 지출, 비고, 경로, 수정일 업데이트
+    // 수정 내역: 사용일, 마테고리, 수입 or 지출, 비고, 경로, 수정일 업데이트
     public List<HistoryEntity> update(HistoryEntity historyEntity) {
         validate(historyEntity);
-        Optional<HistoryEntity> original = historyRepository.findById(historyEntity.getId());
-        if (original.isPresent()) {
-            HistoryEntity history = original.get();
-            if (historyEntity.getUseDate() != null) history.setUseDate(historyEntity.getUseDate());
+        Optional<HistoryEntity> optionalHistory = historyRepository.findById(historyEntity.getId());
+        if (optionalHistory.isPresent()) {
+            HistoryEntity originalHistory = optionalHistory.get();
+            if (historyEntity.getUseDate() != null) originalHistory.setUseDate(historyEntity.getUseDate());
             Optional<CategoryEntity> category = categoryRepository.findById(historyEntity.getCategory().getId());
-            category.ifPresent(history::setCategory);
-            history.setIncome(historyEntity.getIncome());
-            history.setExpenditure(historyEntity.getExpenditure());
-            if (historyEntity.getMemo() != null) history.setMemo(historyEntity.getMemo());
+            category.ifPresent(originalHistory::setCategory);
+            originalHistory.setIncome(historyEntity.getIncome());
+            originalHistory.setExpenditure(historyEntity.getExpenditure());
+            if (historyEntity.getMemo() != null) originalHistory.setMemo(historyEntity.getMemo());
 
-            if (historyEntity.getImagePath().size() != 0) history.setImagePath(historyEntity.getImagePath());
+            if (historyEntity.getImagePath().size() != 0) originalHistory.setImagePath(historyEntity.getImagePath());
 
-            history.setUpdatedAt(LocalDateTime.now());
-            historyRepository.save(history);
+            originalHistory.setUpdatedAt(LocalDateTime.now());
+            historyRepository.save(originalHistory);
         }
         return historyEntity.getMember().getHistories();
     }

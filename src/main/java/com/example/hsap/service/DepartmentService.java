@@ -24,9 +24,11 @@ public class DepartmentService {
     }
     public List<DepartmentEntity> retrieveAll() {
         List<DepartmentEntity> allDepartment = departmentRepository.findAll();
+        // 관리부서 제외하고 조회하기
         allDepartment.remove(0);
         return allDepartment;
     }
+    // 수정 가능 내역: 이름
     public DepartmentEntity retrieve(String name) {
         return departmentRepository.findByName(name);
     }
@@ -36,13 +38,13 @@ public class DepartmentService {
                log.warn("This department entity's id is null");
                throw new RuntimeException("This department entity's id is null");
            }
-            Optional<DepartmentEntity> optionalEntity = departmentRepository.findById(departmentEntity.getId());
+            Optional<DepartmentEntity> optionalDepartment = departmentRepository.findById(departmentEntity.getId());
             // 아이디를 가지고 찾은 부서가 존재한다면
-            if (optionalEntity.isPresent()) {
-                DepartmentEntity original = optionalEntity.get();
-                if (departmentEntity.getName() != null) original.setName(departmentEntity.getName());
+            if (optionalDepartment.isPresent()) {
+                DepartmentEntity originalDepartment = optionalDepartment.get();
+                if (departmentEntity.getName() != null) originalDepartment.setName(departmentEntity.getName());
 //                original.setAsset(departmentEntity.getAsset());
-                departmentRepository.save(original);
+                departmentRepository.save(originalDepartment);
                 return retrieveAll();
             } else {
                 log.warn("This department is not exist");
@@ -81,10 +83,11 @@ public class DepartmentService {
         return department.getHistories();
     }
 
-    public void validate(DepartmentEntity entity) {
-        if (entity == null) {
+    public void validate(DepartmentEntity departmentEntity) {
+        if (departmentEntity == null) {
             log.warn("This department entity is null");
             throw new RuntimeException("This department entity is null");
         }
     }
+    
 }

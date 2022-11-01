@@ -5,11 +5,15 @@ import com.example.hsap.model.CategoryEntity;
 import com.example.hsap.model.DepartmentEntity;
 import com.example.hsap.model.HistoryEntity;
 import com.example.hsap.model.MemberEntity;
+import com.example.hsap.security.MemberDetails;
 import com.example.hsap.service.DepartmentService;
+import com.example.hsap.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -19,6 +23,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DepartmentController {
     private final DepartmentService departmentService;
+
+    private final MemberService memberService;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN')")
@@ -134,7 +140,10 @@ public class DepartmentController {
     // 부서별 사용내역 조회 (name 필요)
     @GetMapping("/histories")
     @PreAuthorize("hasAnyRole('LEADER')")
-    public ResponseEntity<?> getHistories(@RequestParam String name) {
+    public ResponseEntity<?> getHistories(@RequestParam String name, @AuthenticationPrincipal MemberDetails principal) {
+        // 관리자 권한이 아닌 리더의 권한으로 다른 부서의 내역을 확인할 수 없다.
+        if (principal.getAuthorities().stream().findFirst().get().toString().equals("ROLE_LEADER") && !memberService.searchById(principal.getUserId()).getDepartment().getName().equals(name))
+            throw new AccessDeniedException("본인이 속한 부서 이외에 다른 부서 열람의 권한이 없습니다.");
         try {
             List<HistoryEntity> entities = departmentService.getHistories(name);
             List<HistoryDTO> dtos = entities.stream().map(HistoryDTO::new).toList();

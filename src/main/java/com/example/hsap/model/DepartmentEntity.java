@@ -15,6 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "department", uniqueConstraints = {@UniqueConstraint(columnNames = "name")})
 public class DepartmentEntity extends BaseEntity {
+
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
@@ -25,8 +26,6 @@ public class DepartmentEntity extends BaseEntity {
 
     private int asset;
 
-    // cascade : 영속성 전이, 부모 엔터티에서 자식엔터티로 전이되는 것
-    // orphanRemoval : 부모엔터티와 관계가 끊기면 고아 객체가 되어 삭제된다.
     @OneToMany(mappedBy = "department")
     @ToString.Exclude
     List<MemberEntity> members = new ArrayList<>();
@@ -38,4 +37,5 @@ public class DepartmentEntity extends BaseEntity {
     @OneToMany(mappedBy = "department")
     @ToString.Exclude
     private List<CategoryEntity> categories = new ArrayList<>();
+
 }
