@@ -28,10 +28,16 @@ public class DepartmentService {
         allDepartment.remove(0);
         return allDepartment;
     }
-    // 수정 가능 내역: 이름
     public DepartmentEntity retrieve(String name) {
-        return departmentRepository.findByName(name);
+        DepartmentEntity department = departmentRepository.findByName(name);
+        if (department == null) {
+            log.warn("해당 부서가 존재하지 않습니다.");
+            throw new RuntimeException("해당 부서가 존재하지 않습니다.");
+        }
+        else return department;
     }
+
+    // 수정 가능 내역: 이름
     public List<DepartmentEntity> update(DepartmentEntity departmentEntity) {
            validate(departmentEntity);
            if (departmentEntity.getId() == null) {
@@ -47,8 +53,8 @@ public class DepartmentService {
                 departmentRepository.save(originalDepartment);
                 return retrieveAll();
             } else {
-                log.warn("This department is not exist");
-                throw new RuntimeException("This department is not exist");
+                log.warn("해당 부서가 존재하지 않습니다.");
+                throw new RuntimeException("해당 부서가 존재하지 않습니다.");
             }
     }
     public List<DepartmentEntity> delete(DepartmentEntity departmentEntity) {

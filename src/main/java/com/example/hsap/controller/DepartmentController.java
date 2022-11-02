@@ -23,7 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DepartmentController {
     private final DepartmentService departmentService;
-
     private final MemberService memberService;
 
     @PostMapping
@@ -61,13 +60,12 @@ public class DepartmentController {
     // 이름으로 해당 부서 조회
     @GetMapping
     public ResponseEntity<?> retrieve(@RequestParam String name) {
-        DepartmentEntity entity = departmentService.retrieve(name);
-        if (entity != null) {
-            DepartmentDTO dto = new DepartmentDTO(entity);
-            return ResponseEntity.ok().body(dto);
-        }
-        else {
-            ResponseDTO response = ResponseDTO.builder().error("This Department is not exists").build();
+        try {
+            DepartmentEntity departmentEntity = departmentService.retrieve(name);
+            DepartmentDTO departmentDTO = new DepartmentDTO(departmentEntity);
+            return ResponseEntity.ok().body(departmentDTO);
+        } catch (Exception exception) {
+            ResponseDTO response = ResponseDTO.builder().error(exception.getMessage()).build();
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -76,7 +74,7 @@ public class DepartmentController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> update(@RequestBody DepartmentDTO dto) {
         try {
-            DepartmentEntity entity = DepartmentDTO.toEntity(dto);
+            DepartmentEntity entity = DepartmentEntity.builder().name(dto.getName()).id(dto.getId()).build();
             List<DepartmentEntity> entities = departmentService.update(entity);
             List<DepartmentDTO> dtos = entities.stream().map(DepartmentDTO::new).toList();
             ResponseDTO response = ResponseDTO.<DepartmentDTO>builder()
@@ -154,4 +152,5 @@ public class DepartmentController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
 }

@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Table(name = "member", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
 @Where(clause = "deleted = false")
 public class MemberEntity extends BaseEntity{
+
     @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
@@ -44,15 +45,11 @@ public class MemberEntity extends BaseEntity{
 
     private String phoneNumber;
 
-//    @Enumerated(value = EnumType.STRING)
-//    private Gender gender;
-
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<HistoryEntity> histories = new ArrayList<HistoryEntity>();
 
     @ManyToOne
-    @JoinColumn(name = "department_id")
     private DepartmentEntity department;
 
     @ManyToMany
@@ -62,14 +59,11 @@ public class MemberEntity extends BaseEntity{
             inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")})
     private Set<AuthorityEntity> authorities;
 
-//    public Set<AuthorityEntity> getAuthorityNames() {
-//        return this.authorities;
-//    }
-
     public Collection<? extends GrantedAuthority> getGrantedAuthorities() {
        List<GrantedAuthority> grantedAuthorities = authorities.stream()
                .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                .collect(Collectors.toList());
         return grantedAuthorities;
     }
+
 }

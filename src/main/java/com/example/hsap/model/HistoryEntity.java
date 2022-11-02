@@ -3,9 +3,6 @@ package com.example.hsap.model;
 import javax.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
