@@ -41,6 +41,12 @@ public class CategoryService {
         return department.getCategories();
     }
 
+    public List<CategoryEntity> retrieveDeletedByDepartment(String departmentName) {
+        if (departmentName == null) throw new RuntimeException("department is null");
+        DepartmentEntity department = departmentRepository.findByName(departmentName);
+        return categoryRepository.findDeletedCategoriesByDepartment(department.getId());
+    }
+
     public List<CategoryEntity> update(CategoryEntity categoryEntity) {
         validate(categoryEntity);
         if (categoryEntity.getId() == null) {

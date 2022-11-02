@@ -48,6 +48,12 @@ public class MemberService {
         return memberRepository.findAll();
     }
 
+    public List<MemberEntity> retrieveDeletedByDepartment(String departmentName) {
+        if (departmentName == null) throw new RuntimeException("department is null");
+        DepartmentEntity department = departmentRepository.findByName(departmentName);
+        return memberRepository.findDeletedMembersByDepartment(department.getId());
+    }
+
     public MemberEntity searchById(String id) {
         Optional<MemberEntity> optionalMemberEntity = memberRepository.findById(id);
         if (optionalMemberEntity.isEmpty()) {

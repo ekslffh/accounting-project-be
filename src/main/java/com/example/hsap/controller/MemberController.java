@@ -36,6 +36,19 @@ public class MemberController {
         return ResponseEntity.ok().body(entities);
     }
 
+    @GetMapping("/deleted")
+    public ResponseEntity<?> retrieveDeletedByDepartment(@RequestParam String name) {
+        try {
+            List<MemberEntity> entities = memberService.retrieveDeletedByDepartment(name);
+            List<MemberDTO> dtos = entities.stream().map(MemberDTO::new).toList();
+            ResponseDTO response = ResponseDTO.<MemberDTO>builder().data(dtos).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @PutMapping
     public ResponseEntity<?> update(@RequestBody MemberDTO memberDTO) {
         try {
@@ -187,4 +200,5 @@ class AuthController {
             return ResponseEntity.badRequest().body(response);
         }
     }
+
 }

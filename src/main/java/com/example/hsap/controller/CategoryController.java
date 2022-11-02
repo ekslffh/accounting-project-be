@@ -20,8 +20,6 @@ import java.util.List;
 public class CategoryController {
     private final CategoryService categoryService;
 
-    private final MemberService memberService;
-
     @PostMapping
     @PreAuthorize("hasAnyRole('LEADER')")
     public ResponseEntity<?> create(
@@ -42,6 +40,19 @@ public class CategoryController {
     public ResponseEntity<?> retrieveByDepartment(@RequestParam String name) {
         try {
             List<CategoryEntity> entities = categoryService.retrieveByDepartment(name);
+            List<CategoryDTO> dtos = entities.stream().map(CategoryDTO::new).toList();
+            ResponseDTO response = ResponseDTO.<CategoryDTO>builder().data(dtos).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @GetMapping("/deleted")
+    public ResponseEntity<?> retrieveDeletedByDepartment(@RequestParam String name) {
+        try {
+            List<CategoryEntity> entities = categoryService.retrieveDeletedByDepartment(name);
             List<CategoryDTO> dtos = entities.stream().map(CategoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<CategoryDTO>builder().data(dtos).build();
             return ResponseEntity.ok().body(response);
