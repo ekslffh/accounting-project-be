@@ -68,14 +68,12 @@ public class MemberService {
     }
 
     public MemberEntity update(MemberEntity entity) {
-//        validate(entity);
         MemberEntity findEntity = searchById(entity.getId());
         if (findEntity == null) {
             throw new RuntimeException("Member is not exists");
         }
         findEntity.setBirth(entity.getBirth());
         findEntity.setPhoneNumber(entity.getPhoneNumber());
-//        findEntity.setPassword(entity.getPassword());
         findEntity.setName(entity.getName());
         return memberRepository.save(findEntity);
     }
@@ -85,12 +83,6 @@ public class MemberService {
     }
 
     public void delete(MemberEntity entity) {
-//        validate(entity);
-//        try {
-//            memberRepository.delete(entity);
-//        } catch (Exception ex) {
-//            throw new RuntimeException(ex.getMessage());
-//        }
         MemberEntity foundMember = memberRepository.findByEmail(entity.getEmail());
         String authorities = foundMember.getGrantedAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)

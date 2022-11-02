@@ -122,8 +122,6 @@ class AuthController {
     private final MemberService memberService;
     private final TokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    // DefaultMessageService messageService =  NurigoApp.INSTANCE.initialize("API 키 입력", "API 시크릿 키 입력", "https://api.solapi.com");
     private final DefaultMessageService messageService = NurigoApp.INSTANCE.initialize("NCS3CDJQNKS6YNXZ", "AO8BIRTEPZLKY2CMRBZ8VCY0RDPT4ASM", "https://api.solapi.com");
 
     @PostMapping("/phone")
@@ -185,27 +183,8 @@ class AuthController {
             responseMemberDTO.setToken(token);
             return ResponseEntity.ok().body(responseMemberDTO);
         } else {
-            ResponseDTO response = ResponseDTO.builder().error("로그인 실패").build();
+            ResponseDTO response = ResponseDTO.builder().error("로그인 인증 실패").build();
             return ResponseEntity.badRequest().body(response);
         }
     }
-
-    @GetMapping("/admin")
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    public String helloAdmin() {
-        return "hello admin page";
-    }
-
-    @GetMapping("/leader")
-    @PreAuthorize("hasAnyRole('LEADER')")
-    public String helloLeader() {
-        return "hello leader page";
-    }
-
-    @GetMapping("/user")
-    @PreAuthorize("hasAnyRole('USER')")
-    public String helloUser() {
-        return "hello user page";
-    }
-
 }

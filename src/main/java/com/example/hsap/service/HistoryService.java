@@ -78,4 +78,5 @@ public class HistoryService {
             throw new RuntimeException("This history is null");
         }
     }
+
 }

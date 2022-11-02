@@ -78,7 +78,6 @@ public class CategoryController {
                     .id(categoryDTO.getId())
                     .department(department)
                     .build();
-//            CategoryEntity categoryEntity = CategoryDTO.toEntity(categoryDTO);
             List<CategoryEntity> entities = categoryService.delete(categoryEntity);
             List<CategoryDTO> dtos = entities.stream().map(CategoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<CategoryDTO>builder()

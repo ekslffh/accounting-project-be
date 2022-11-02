@@ -2,7 +2,6 @@ package com.example.hsap.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
@@ -35,18 +34,11 @@ public class S3Upload {
         objMeta.setContentType(multipartFile.getContentType());
         objMeta.setContentLength(size);
 
-//        objMeta.setContentLength(multipartFile.getInputStream().available());
-//        amazonS3.putObject(bucket, "receipts/" + s3FileName, multipartFile.getInputStream(), objMeta)
-        // s3 업로드
         String currentFilePath = "receipts/" + getPathByUseDate(useDate) + s3FileName;
         amazonS3.putObject(
                 new PutObjectRequest(bucket, currentFilePath, multipartFile.getInputStream(), objMeta)
                         .withCannedAcl(CannedAccessControlList.PublicRead)
         );
-
-        System.out.println(amazonS3.doesObjectExist(bucket, currentFilePath));
-        System.out.println(amazonS3.doesObjectExist(bucket, "627610ef-9509-4bf9-92bf-7d87dbd84395-래서펜더.webp"));
-        amazonS3.deleteObject(bucket, "627610ef-9509-4bf9-92bf-7d87dbd84395-래서펜더.webp");
 
         String imagePath = amazonS3.getUrl(bucket, currentFilePath).toString(); // 접근 가능한 url 가져오기
 
@@ -61,15 +53,14 @@ public class S3Upload {
         objMeta.setContentType(multipartFile.getContentType());
         objMeta.setContentLength(size);
 
-//        https://hsap-bucket.s3.ap-northeast-2.amazonaws.com/
         // 기존 이미지 삭제
         if (urlList != null) {
             for (String url : urlList) {
                 String path = url.substring("https://hsap-bucket.s3.ap-northeast-2.amazonaws.com/".length());
-                System.out.println(amazonS3.doesObjectExist(bucket, path));
                 amazonS3.deleteObject(bucket, path);
             }
         }
+
         // s3 업로드
         String currentFilePath = "receipts/" + getPathByUseDate(useDate) + s3FileName;
         amazonS3.putObject(
@@ -87,8 +78,8 @@ public class S3Upload {
         if (urlList == null) return;
         for (String url : urlList) {
             String path = url.substring("https://hsap-bucket.s3.ap-northeast-2.amazonaws.com/".length());
-            System.out.println(amazonS3.doesObjectExist(bucket, path));
             amazonS3.deleteObject(bucket, path);
         }
     }
+
 }

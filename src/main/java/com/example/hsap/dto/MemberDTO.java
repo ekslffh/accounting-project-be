@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import com.example.hsap.model.AuthorityEntity;
-import com.example.hsap.model.Gender;
 import com.example.hsap.model.MemberEntity;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -26,8 +25,6 @@ public class MemberDTO {
 
     private String password;
     private String name;
-
-    private Gender gender;
     private String birth;
     private String phoneNumber;
     private LocalDateTime createdAt;
@@ -45,8 +42,6 @@ public class MemberDTO {
         this.name = memberEntity.getName();
         this.birth = memberEntity.getBirth();
         this.phoneNumber = memberEntity.getPhoneNumber();
-//        this.gender = memberEntity.getGender();
-//        this.asset = memberEntity.getAsset();
         this.createdAt = memberEntity.getCreatedAt();
         this.updatedAt = memberEntity.getUpdatedAt();
         this.authority = memberEntity.getAuthorities().stream().map(
@@ -63,8 +58,6 @@ public class MemberDTO {
         memberEntity.setName(memberDTO.getName());
         memberEntity.setBirth(memberDTO.getBirth());
         memberEntity.setPhoneNumber(memberDTO.getPhoneNumber());
-//        memberEntity.setGender(memberDTO.getGender());
-//        memberEntity.setAsset(memberDTO.getAsset());
         memberEntity.setAuthorities(memberDTO.getAuthority().stream().map(
                 authorityDTO -> new AuthorityEntity(authorityDTO.getAuthorityName()))
                 .collect(Collectors.toSet()));

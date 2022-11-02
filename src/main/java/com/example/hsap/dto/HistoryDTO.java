@@ -25,8 +25,6 @@ public class HistoryDTO {
     private MemberDTO member; // 유저정보
     private CategoryDTO category;
     private DepartmentDTO department;
-
-//    private String imagePath;
     private List<String> imagePath = new ArrayList<>();
 
     public HistoryDTO(HistoryEntity historyEntity) {
@@ -44,7 +42,7 @@ public class HistoryDTO {
     }
 
     public static HistoryEntity toEntity(HistoryDTO dto) {
-//         category에 아이디만 넣어서 주면 된다.
+           // category에 아이디만 넣어서 주면 된다.
            CategoryEntity categoryEntity = CategoryEntity.builder().id(dto.getCategory().getId()).build();
            HistoryEntity entity =  HistoryEntity.builder()
                     .id(dto.getId())
@@ -59,4 +57,5 @@ public class HistoryDTO {
            entity.setUpdatedAt(dto.getUpdatedAt());
            return entity;
     }
+
 }

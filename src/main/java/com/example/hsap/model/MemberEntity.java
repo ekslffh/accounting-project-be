@@ -45,7 +45,7 @@ public class MemberEntity extends BaseEntity{
 
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member")
     @ToString.Exclude
     private List<HistoryEntity> histories = new ArrayList<HistoryEntity>();
 

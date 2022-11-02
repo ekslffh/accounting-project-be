@@ -2,7 +2,6 @@ package com.example.hsap.controller;
 
 import com.example.hsap.dto.HistoryDTO;
 import com.example.hsap.dto.ResponseDTO;
-import com.example.hsap.model.DepartmentEntity;
 import com.example.hsap.model.HistoryEntity;
 import com.example.hsap.model.MemberEntity;
 import com.example.hsap.security.MemberDetails;
@@ -11,17 +10,12 @@ import com.example.hsap.service.MemberService;
 import com.example.hsap.service.S3Upload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -99,7 +93,6 @@ public class HistoryController {
             List<MultipartFile> receipts,
             @RequestPart("history") HistoryDTO dto) {
         try {
-            MemberEntity memberEntity = memberService.searchById(principal.getUserId());
             List<String> path = new ArrayList<>();
 
             if (receipts != null) {
@@ -133,7 +126,7 @@ public class HistoryController {
             s3Upload.remove(history.getImagePath());
 
             HistoryEntity historyEntity = HistoryEntity.builder().id(history.getId()).build();
-//            HistoryEntity historyEntity = HistoryDTO.toEntity(history);
+
             historyService.delete(historyEntity);
             MemberEntity member = memberService.searchById(principal.getUserId());
             List<HistoryEntity> historyEntities = member.getHistories();
@@ -147,41 +140,4 @@ public class HistoryController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-
-    @PostMapping("/file")
-    public boolean uploadFiles(List<MultipartFile> files, String hello, @RequestPart("department") DepartmentEntity department, HttpServletRequest request) {
-        String UPLOAD_PATH = "/Users/nasungmin/Desktop/accounting-project/image/" + new Date().getTime();
-
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = new JSONObject();
-//        try {
-////            jsonObject = (JSONObject) jsonParser.parse(department);
-////            DepartmentEntity departmentEntity = (DepartmentEntity) jsonObject;
-//
-////            Object object = jsonParser.parse(department);
-////            DepartmentEntity departmentEntity = (DepartmentEntity) object;
-////            System.out.println(departmentEntity);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-
-        try {
-            for (int i = 0; i < files.size(); i++) {
-                String originName = files.get(i).getOriginalFilename();
-
-                assert originName != null;
-                File folder = new File(UPLOAD_PATH);
-
-                if (!folder.exists()) folder.mkdirs();
-
-                File newFile = new File(UPLOAD_PATH, originName);
-                files.get(i).transferTo(newFile);
-            }
-        } catch (IOException e) {
-            System.out.println(e);
-            return false;
-        }
-        return true;
-    }
-
 }
