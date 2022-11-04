@@ -100,9 +100,10 @@ public class MemberService {
         memberRepository.save(foundMember);
     }
 
-    public List<HistoryEntity> getHistories(String memberId) {
+    public List<HistoryEntity> getHistories(String memberId, String year) {
         MemberEntity member = memberRepository.findById(memberId).orElseThrow(RuntimeException::new);
-        return member.getHistories();
+        List<HistoryEntity> historyEntities = member.getHistories();
+        return historyEntities.stream().filter(historyEntity -> historyEntity.getUseDate().getYear() == Integer.parseInt(year)).toList();
     }
 
     public List<CategoryEntity> getCategories(String memberId) {

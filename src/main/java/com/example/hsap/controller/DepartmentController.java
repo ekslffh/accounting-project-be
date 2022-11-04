@@ -138,12 +138,12 @@ public class DepartmentController {
     // 부서별 사용내역 조회 (name 필요)
     @GetMapping("/histories")
     @PreAuthorize("hasAnyRole('LEADER')")
-    public ResponseEntity<?> getHistories(@RequestParam String name, @AuthenticationPrincipal MemberDetails principal) {
+    public ResponseEntity<?> getHistories(@RequestParam String name, @AuthenticationPrincipal MemberDetails principal, @RequestParam(required = false) String year) {
         // 관리자 권한이 아닌 리더의 권한으로 다른 부서의 내역을 확인할 수 없다.
         if (principal.getAuthorities().stream().findFirst().get().toString().equals("ROLE_LEADER") && !memberService.searchById(principal.getUserId()).getDepartment().getName().equals(name))
             throw new AccessDeniedException("본인이 속한 부서 이외에 다른 부서 열람의 권한이 없습니다.");
         try {
-            List<HistoryEntity> entities = departmentService.getHistories(name);
+            List<HistoryEntity> entities = departmentService.getHistories(name, year);
             List<HistoryDTO> dtos = entities.stream().map(HistoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<HistoryDTO>builder().data(dtos).build();
             return ResponseEntity.ok().body(response);

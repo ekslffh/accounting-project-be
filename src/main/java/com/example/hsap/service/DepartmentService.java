@@ -84,14 +84,16 @@ public class DepartmentService {
     }
 
     // 부서의 사용내역들 조회하기
-    public List<HistoryEntity> getHistories(String name) {
+    public List<HistoryEntity> getHistories(String name, String year) {
         DepartmentEntity department = departmentRepository.findByName(name);
-        return department.getHistories();
+        List<HistoryEntity> historyEntities = department.getHistories();
+        return historyEntities.stream().filter(historyEntity -> historyEntity.getUseDate().getYear() == Integer.parseInt(year)).toList();
     }
 
     public void validate(DepartmentEntity departmentEntity) {
         if (departmentEntity == null) {
             log.warn("This department entity is null");
+
             throw new RuntimeException("This department entity is null");
         }
     }

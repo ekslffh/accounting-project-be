@@ -89,10 +89,9 @@ public class MemberController {
     }
 
     @GetMapping("/histories")
-    public ResponseEntity<?> getHistories(@AuthenticationPrincipal MemberDetails principal) {
+    public ResponseEntity<?> getHistories(@AuthenticationPrincipal MemberDetails principal, @RequestParam(required = false) String year) {
         try {
-
-            List<HistoryEntity> historyEntities = memberService.getHistories(principal.getUserId());
+            List<HistoryEntity> historyEntities = memberService.getHistories(principal.getUserId(), year);
             List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<HistoryDTO>builder().data(historyDTOS).build();
             return ResponseEntity.ok().body(response);

@@ -32,7 +32,6 @@ public class HistoryEntity extends BaseEntity{
 
     @ElementCollection
     private List<String> imagePath = new ArrayList<>();
-//    private String imagePath;
 
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = false)

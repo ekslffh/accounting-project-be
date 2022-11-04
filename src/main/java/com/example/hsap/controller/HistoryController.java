@@ -31,7 +31,10 @@ public class HistoryController {
     public ResponseEntity<?> create(
             @AuthenticationPrincipal MemberDetails principal,
             List<MultipartFile> receipts,
-            @RequestPart("history") HistoryDTO dto) {
+            @RequestPart("history") HistoryDTO dto,
+            @RequestParam(required = false) String year
+            )
+    {
         try {
             MemberEntity memberEntity = memberService.searchById(principal.getUserId());
             List<String> path = new ArrayList<>();
@@ -46,7 +49,7 @@ public class HistoryController {
             entity.setMember(memberEntity);
 
             entity.setDepartment(memberEntity.getDepartment());
-            List<HistoryEntity> entities = historyService.create(entity);
+            List<HistoryEntity> entities = historyService.create(entity, year);
             List<HistoryDTO> dtos = entities.stream().map(HistoryDTO::new).toList();
             ResponseDTO<HistoryDTO> response = ResponseDTO.<HistoryDTO>builder()
                     .data(dtos)
@@ -70,10 +73,10 @@ public class HistoryController {
     }
 
     @DeleteMapping("/receipt")
-    public ResponseEntity<?> deleteReceipt(@RequestBody HistoryDTO historyDTO) {
+    public ResponseEntity<?> deleteReceipt(@RequestBody HistoryDTO historyDTO, @RequestParam(required = false) String year) {
         try {
             // 해당 히스토리 객체에서 imagePath 지우기
-            List<HistoryEntity> historyEntities = historyService.deleteReceipt(historyDTO.getId());
+            List<HistoryEntity> historyEntities = historyService.deleteReceipt(historyDTO.getId(), year);
 
             List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<HistoryDTO>builder().data(historyDTOS).build();
@@ -91,7 +94,10 @@ public class HistoryController {
     public ResponseEntity<?> update(
             @AuthenticationPrincipal MemberDetails principal,
             List<MultipartFile> receipts,
-            @RequestPart("history") HistoryDTO dto) {
+            @RequestPart("history") HistoryDTO dto,
+            @RequestParam(required = false) String year
+            )
+    {
         try {
             List<String> path = new ArrayList<>();
 
@@ -105,7 +111,7 @@ public class HistoryController {
 
             HistoryEntity historyEntity = HistoryDTO.toEntity(dto);
             historyEntity.setMember(memberService.searchById(principal.getUserId()));
-            List<HistoryEntity> historyEntities = historyService.update(historyEntity);
+            List<HistoryEntity> historyEntities = historyService.update(historyEntity, year);
             List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<HistoryDTO>builder()
                     .data(historyDTOS)
@@ -120,7 +126,10 @@ public class HistoryController {
     @DeleteMapping
     public ResponseEntity<?> delete(
             @AuthenticationPrincipal MemberDetails principal,
-            @RequestBody HistoryDTO history) {
+            @RequestBody HistoryDTO history,
+            @RequestParam(required = false) String year
+        )
+    {
         try {
             // 실제 S3에서 해당 이미지 삭제 진행
             s3Upload.remove(history.getImagePath());
@@ -130,6 +139,8 @@ public class HistoryController {
             historyService.delete(historyEntity);
             MemberEntity member = memberService.searchById(principal.getUserId());
             List<HistoryEntity> historyEntities = member.getHistories();
+            historyEntities = historyEntities.stream().filter(history1 -> history1.getUseDate().getYear() == Integer.parseInt(year)).toList();
+
             List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<HistoryDTO>builder()
                     .data(historyDTOS)
