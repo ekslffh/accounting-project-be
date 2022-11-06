@@ -7,7 +7,6 @@ import com.example.hsap.model.CategoryEntity;
 import com.example.hsap.model.DepartmentEntity;
 import com.example.hsap.model.HistoryEntity;
 import com.example.hsap.service.CategoryService;
-import com.example.hsap.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -11,6 +11,7 @@ import com.example.hsap.service.S3Upload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,11 +28,12 @@ public class HistoryController {
     private final MemberService memberService;
     private final S3Upload s3Upload;
 
-    @PostMapping
+    @PostMapping("/{constructor}")
     public ResponseEntity<?> create(
             @AuthenticationPrincipal MemberDetails principal,
             List<MultipartFile> receipts,
             @RequestPart("history") HistoryDTO dto,
+            @PathVariable(required = false) String constructor,
             @RequestParam(required = false) String year
             )
     {
@@ -47,9 +49,14 @@ public class HistoryController {
             entity.setId(null);
             if (path.size() != 0) entity.setImagePath(path);
             entity.setMember(memberEntity);
-
             entity.setDepartment(memberEntity.getDepartment());
-            List<HistoryEntity> entities = historyService.create(entity, year);
+
+            List<HistoryEntity> entities = constructor.equals("department")
+                    ?
+                    historyService.create(entity, year, true)
+                    :
+                    historyService.create(entity, year, false);
+
             List<HistoryDTO> dtos = entities.stream().map(HistoryDTO::new).toList();
             ResponseDTO<HistoryDTO> response = ResponseDTO.<HistoryDTO>builder()
                     .data(dtos)
@@ -65,6 +72,7 @@ public class HistoryController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> retrieveAll() {
         List<HistoryEntity> expenditureEntities = historyService.retrieveAll();
         List<HistoryDTO> expenditureDTOS = expenditureEntities.stream().map(HistoryDTO::new).toList();
@@ -72,11 +80,19 @@ public class HistoryController {
         return ResponseEntity.ok().body(response);
     }
 
-    @DeleteMapping("/receipt")
-    public ResponseEntity<?> deleteReceipt(@RequestBody HistoryDTO historyDTO, @RequestParam(required = false) String year) {
+    @DeleteMapping("/receipt/{constructor}")
+    public ResponseEntity<?> deleteReceipt(
+            @RequestBody HistoryDTO historyDTO,
+            @PathVariable(required = false) String constructor,
+            @RequestParam(required = false) String year) {
         try {
             // 해당 히스토리 객체에서 imagePath 지우기
-            List<HistoryEntity> historyEntities = historyService.deleteReceipt(historyDTO.getId(), year);
+            List<HistoryEntity> historyEntities =
+                    constructor.equals("department")
+                    ?
+                    historyService.deleteReceipt(historyDTO.getId(), year, true)
+                    :
+                    historyService.deleteReceipt(historyDTO.getId(), year, false);
 
             List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<HistoryDTO>builder().data(historyDTOS).build();
@@ -90,11 +106,12 @@ public class HistoryController {
         }
     }
 
-    @PutMapping
+    @PutMapping("/{constructor}")
     public ResponseEntity<?> update(
             @AuthenticationPrincipal MemberDetails principal,
             List<MultipartFile> receipts,
             @RequestPart("history") HistoryDTO dto,
+            @PathVariable(required = false) String constructor,
             @RequestParam(required = false) String year
             )
     {
@@ -111,7 +128,14 @@ public class HistoryController {
 
             HistoryEntity historyEntity = HistoryDTO.toEntity(dto);
             historyEntity.setMember(memberService.searchById(principal.getUserId()));
-            List<HistoryEntity> historyEntities = historyService.update(historyEntity, year);
+            List<HistoryEntity> historyEntities =
+                    constructor.equals("department")
+                    ?
+                    historyService.update(historyEntity, year, true)
+                    :
+                    historyService.update(historyEntity, year, false)
+                    ;
+
             List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
             ResponseDTO response = ResponseDTO.<HistoryDTO>builder()
                     .data(historyDTOS)
@@ -123,10 +147,11 @@ public class HistoryController {
         }
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{constructor}")
     public ResponseEntity<?> delete(
             @AuthenticationPrincipal MemberDetails principal,
             @RequestBody HistoryDTO history,
+            @PathVariable(required = false) String constructor,
             @RequestParam(required = false) String year
         )
     {
@@ -138,7 +163,13 @@ public class HistoryController {
 
             historyService.delete(historyEntity);
             MemberEntity member = memberService.searchById(principal.getUserId());
-            List<HistoryEntity> historyEntities = member.getHistories();
+            List<HistoryEntity> historyEntities =
+                    constructor.equals("department")
+                    ?
+                    member.getDepartment().getHistories()
+                    :
+                    member.getHistories();
+
             historyEntities = historyEntities.stream().filter(history1 -> history1.getUseDate().getYear() == Integer.parseInt(year)).toList();
 
             List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
