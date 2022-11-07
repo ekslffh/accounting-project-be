@@ -44,9 +44,9 @@ class HistoryRepositoryTest {
         HistoryEntity historyEntity2 = HistoryEntity.builder().category(categoryEntity).useDate(LocalDateTime.of(2021, 4, 5, 4, 3)).department(department).member(member).build();
         HistoryEntity historyEntity3 = HistoryEntity.builder().category(categoryEntity).useDate(LocalDateTime.of(2022, 12, 3, 4,5)).department(member.getDepartment()).member(member).build();
 
-        historyService.create(historyEntity);
-        historyService.create(historyEntity2);
-        historyService.create(historyEntity3);
+//        historyService.create(historyEntity);
+//        historyService.create(historyEntity2);
+//        historyService.create(historyEntity3);
     }
 
     @Test

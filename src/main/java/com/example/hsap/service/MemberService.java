@@ -54,6 +54,14 @@ public class MemberService {
         return memberRepository.findDeletedMembersByDepartment(department.getId());
     }
 
+    public List<MemberEntity> recover(String id) {
+            MemberEntity member = memberRepository.findByIdCustom(id);
+            member.setDeleted(false);
+            memberRepository.save(member);
+
+        return retrieveDeletedByDepartment(member.getDepartment().getName());
+    }
+
     public MemberEntity searchById(String id) {
         Optional<MemberEntity> optionalMemberEntity = memberRepository.findById(id);
         if (optionalMemberEntity.isEmpty()) {

@@ -47,6 +47,18 @@ public class CategoryService {
         return categoryRepository.findDeletedCategoriesByDepartment(department.getId());
     }
 
+    public List<CategoryEntity> recover(String id) {
+        Optional<CategoryEntity> optionalCategory = categoryRepository.findByIdCustom(id);
+        if (optionalCategory.isPresent()) {
+            CategoryEntity category = optionalCategory.get();
+            category.setDeleted(false);
+            categoryRepository.save(category);
+        }
+        else throw new RuntimeException("해당 카테고리가 존재하지 않습니다.");
+
+        return retrieveByDepartment(optionalCategory.get().getDepartment().getName());
+    }
+
     public List<CategoryEntity> update(CategoryEntity categoryEntity) {
         validate(categoryEntity);
         if (categoryEntity.getId() == null) {

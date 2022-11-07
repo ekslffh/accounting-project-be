@@ -61,6 +61,19 @@ public class CategoryController {
         }
     }
 
+    @PutMapping("/recover")
+    public ResponseEntity<?> recover(@RequestBody CategoryDTO categoryDTO) {
+        try {
+            List<CategoryEntity> entities = categoryService.recover(categoryDTO.getId());
+            List<CategoryDTO> dtos = entities.stream().map(CategoryDTO::new).toList();
+            ResponseDTO response = ResponseDTO.<CategoryDTO>builder().data(dtos).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @PutMapping
     @PreAuthorize("hasAnyRole('LEADER')")
     public ResponseEntity<?> update(@RequestBody CategoryDTO categoryDTO) {

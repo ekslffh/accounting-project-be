@@ -49,6 +49,19 @@ public class MemberController {
         }
     }
 
+    @PutMapping("/recover")
+    public ResponseEntity<?> recover(@RequestBody MemberDTO memberDTO) {
+        try {
+            List<MemberEntity> entities = memberService.recover(memberDTO.getId());
+            List<MemberDTO> dtos = entities.stream().map(MemberDTO::new).toList();
+            ResponseDTO response = ResponseDTO.<MemberDTO>builder().data(dtos).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @PutMapping
     public ResponseEntity<?> update(@RequestBody MemberDTO memberDTO) {
         try {
