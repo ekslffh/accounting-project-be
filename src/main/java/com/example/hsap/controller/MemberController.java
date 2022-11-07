@@ -149,6 +149,48 @@ class AuthController {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final DefaultMessageService messageService = NurigoApp.INSTANCE.initialize("NCS3CDJQNKS6YNXZ", "AO8BIRTEPZLKY2CMRBZ8VCY0RDPT4ASM", "https://api.solapi.com");
 
+    @PutMapping("find-id")
+    public ResponseEntity<?> findId(@RequestBody MemberDTO memberDTO) {
+        try {
+            MemberEntity memberEntity = MemberEntity.builder()
+                    .name(memberDTO.getName())
+                    .phoneNumber(memberDTO.getPhoneNumber())
+                    .build();
+            List<String> emailList = memberService.getEmailList(memberEntity);
+            ResponseDTO response = ResponseDTO.<String>builder().data(emailList).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception exception) {
+            ResponseDTO response = ResponseDTO.builder().error(exception.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PutMapping("find-password")
+    public ResponseEntity<?> initializeTempPassword(@RequestBody MemberDTO memberDTO) {
+        Message message = new Message();
+        // 발신번호 및 수신번호는 반드시 01012345678 형태로 입력되어야 합니다.
+        message.setFrom("01084819926");
+        message.setTo(memberDTO.getPhoneNumber());
+        // 랜덤 8자리 수 전송
+//        String tempPassword = MessageInfo.numberGen(8, 1);
+        String tempPassword = MessageInfo.getNewWord(8);
+        message.setText("[HSAP] 임시비밀번호[" + tempPassword + "]로 로그인해주세요.");
+        try {
+            this.messageService.send(message);
+            MemberEntity memberEntity = memberService.searchByEmail(memberDTO.getEmail());
+            memberEntity.setPassword(passwordEncoder.encode(tempPassword));
+            memberService.updatePassword(memberEntity);
+        } catch (NurigoMessageNotReceivedException exception) {
+            ResponseDTO response = ResponseDTO.builder().error(exception.getMessage()).build();
+            log.error("failed message list: " + exception.getFailedMessageList().toString());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception exception) {
+            ResponseDTO response = ResponseDTO.builder().error(exception.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+        return ResponseEntity.ok().body(memberDTO);
+    }
+
     @PostMapping("/phone")
     public ResponseEntity<?> phoneAuthenticate(@RequestBody MessageInfo messageInfo) {
         log.info("receiver 전화번호: ", messageInfo.getReceiver());
@@ -158,7 +200,7 @@ class AuthController {
         message.setTo(messageInfo.getReceiver());
         // 랜덤 4자리 수 전송
         String authNumber = MessageInfo.numberGen(4, 1);
-        message.setText("HSAP 인증번호 [" + authNumber + "]");
+        message.setText("[HSAP] 인증번호[" + authNumber + "]를 입력해주세요.");
         try {
             this.messageService.send(message);
         } catch (NurigoMessageNotReceivedException exception) {

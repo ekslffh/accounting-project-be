@@ -1,5 +1,6 @@
 package com.example.hsap.service;
 
+import com.example.hsap.dto.MemberDTO;
 import com.example.hsap.model.CategoryEntity;
 import com.example.hsap.model.DepartmentEntity;
 import com.example.hsap.model.HistoryEntity;
@@ -69,6 +70,22 @@ public class MemberService {
             throw new RuntimeException("This member's id is not exists");
         }
         else return optionalMemberEntity.get();
+    }
+
+    public MemberEntity searchByEmail(String email) {
+        MemberEntity member = memberRepository.findByEmail(email);
+        if (member == null) throw new RuntimeException("해당 계정이 존재하지 않습니다.");
+        else return memberRepository.findByEmail(email);
+    }
+
+    public List<String> getEmailList(MemberEntity member) {
+        if (member == null || member.getName() == null || member.getPhoneNumber() == null) {
+            throw new RuntimeException("멤버 객체의 형식이 잘못되었습니다.");
+        }
+        List<MemberEntity> memberEntities = memberRepository.findByNameAndPhoneNumber(member.getName(), member.getPhoneNumber());
+        if (memberEntities == null) throw new RuntimeException("해당하는 계정이 존재하지 않습니다.");
+        List<String> emailList = memberEntities.stream().map(memberEntity -> memberEntity.getEmail()).toList();
+        return emailList;
     }
 
     public MemberEntity getByCredentials(final String email, final String password, final PasswordEncoder encoder) {

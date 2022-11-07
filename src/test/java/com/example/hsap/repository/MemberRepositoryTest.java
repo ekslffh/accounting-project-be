@@ -23,7 +23,7 @@ class MemberRepositoryTest {
     void before() {
         DepartmentEntity department = departmentRepository.findByName("청년부");
         DepartmentEntity department1 = departmentRepository.findByName("중고등부");
-        MemberEntity member1 = MemberEntity.builder().department(department).name("유저1").email("user1").password("1234").build();
+        MemberEntity member1 = MemberEntity.builder().department(department).phoneNumber("01084819926").name("유저1").email("user1").password("1234").build();
         MemberEntity member2 = MemberEntity.builder().department(department).name("유저2").email("user2").password("1234").deleted(true).build();
         MemberEntity member3 = MemberEntity.builder().department(department).name("유저3").email("user3").password("1234").build();
         MemberEntity member4 = MemberEntity.builder().department(department1).name("유저4").email("user4").password("1234").deleted(true).build();
@@ -50,7 +50,12 @@ class MemberRepositoryTest {
         MemberEntity findDeletedMember2 = memberRepository.findByIdCustom(deleteMember.getId());
         Assertions.assertNotNull(findDeletedMember2);
         System.out.println(findDeletedMember2.getName());
+    }
 
+    @Test
+    void findByNameAndPhoneNumberTest() {
+        List<MemberEntity> members = memberRepository.findByNameAndPhoneNumber("유저2", "01084819926");
+        members.forEach(memberEntity -> System.out.println(memberEntity.getName()));
     }
 
 }
