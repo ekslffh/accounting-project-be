@@ -157,7 +157,8 @@ public class HistoryController {
     {
         try {
             // 실제 S3에서 해당 이미지 삭제 진행
-            s3Upload.remove(history.getImagePath());
+            if (history.getImagePath().size() != 0)
+             s3Upload.remove(history.getImagePath());
 
             HistoryEntity historyEntity = HistoryEntity.builder().id(history.getId()).build();
 

@@ -77,16 +77,16 @@ public class HistoryService {
 
             originalHistory.setUpdatedAt(LocalDateTime.now());
             historyRepository.save(originalHistory);
+            List<HistoryEntity> historyEntities =
+                    isDepartment
+                            ?
+                            originalHistory.getDepartment().getHistories()
+                            :
+                            originalHistory.getMember().getHistories();
+            return historyEntities.stream().filter(history -> history.getUseDate().getYear() == Integer.parseInt(year)).toList();
         }
 
-        List<HistoryEntity> historyEntities =
-                        isDepartment
-                        ?
-                        historyEntity.getDepartment().getHistories()
-                        :
-                        historyEntity.getMember().getHistories();
-
-        return historyEntities.stream().filter(history -> history.getUseDate().getYear() == Integer.parseInt(year)).toList();
+        else throw new RuntimeException("해당 내역이 존재하지 않습니다.");
     }
 
     public void delete(HistoryEntity historyEntity) {

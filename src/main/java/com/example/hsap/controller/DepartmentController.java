@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,7 @@ public class DepartmentController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<?> create(@RequestBody DepartmentDTO dto, @RequestParam String email) {
        try {
+           if (memberService.checkDuplicateEmail(email)) throw new RuntimeException("이메일이 중복되었습니다.");
            DepartmentEntity entity = DepartmentDTO.toEntity(dto);
            // 생성 시에는 id : null
            entity.setId(null);
