@@ -1,10 +1,7 @@
 package com.example.hsap.controller;
 
 import com.example.hsap.dto.*;
-import com.example.hsap.model.CategoryEntity;
-import com.example.hsap.model.DepartmentEntity;
-import com.example.hsap.model.HistoryEntity;
-import com.example.hsap.model.MemberEntity;
+import com.example.hsap.model.*;
 import com.example.hsap.security.MemberDetails;
 import com.example.hsap.service.DepartmentService;
 import com.example.hsap.service.MemberService;
@@ -14,7 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import java.util.HashSet;
 import java.util.List;
 
 @Slf4j
@@ -25,14 +25,23 @@ public class DepartmentController {
     private final DepartmentService departmentService;
     private final MemberService memberService;
 
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    //                dto.addAuthority(new AuthorityDTO("ROLE_USER"));
+
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<?> create(@RequestBody DepartmentDTO dto) {
+    public ResponseEntity<?> create(@RequestBody DepartmentDTO dto, @RequestParam String email) {
        try {
            DepartmentEntity entity = DepartmentDTO.toEntity(dto);
            // 생성 시에는 id : null
            entity.setId(null);
            List<DepartmentEntity> entities = departmentService.create(entity);
+           // 리더 유저 생성하기
+           MemberEntity member = MemberEntity.builder().authorities(new HashSet<>()).name(dto.getName()).email(email).password(passwordEncoder.encode("1234")).department(entity).build();
+           member.getAuthorities().add(new AuthorityEntity("ROLE_LEADER"));
+           memberService.create(member);
+
            List<DepartmentDTO> dtos = entities.stream().map(DepartmentDTO::new).toList();
            ResponseDTO response = ResponseDTO.<DepartmentDTO>builder()
                    .data(dtos)

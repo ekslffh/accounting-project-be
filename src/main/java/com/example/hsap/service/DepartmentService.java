@@ -20,6 +20,7 @@ public class DepartmentService {
     public List<DepartmentEntity> create(DepartmentEntity departmentEntity) {
             validate(departmentEntity);
             departmentRepository.save(departmentEntity);
+
             return retrieveAll();
     }
     public List<DepartmentEntity> retrieveAll() {
