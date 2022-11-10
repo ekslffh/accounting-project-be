@@ -13,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashSet;
 import java.util.List;
@@ -25,10 +24,7 @@ import java.util.List;
 public class DepartmentController {
     private final DepartmentService departmentService;
     private final MemberService memberService;
-
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    //                dto.addAuthority(new AuthorityDTO("ROLE_USER"));
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN')")

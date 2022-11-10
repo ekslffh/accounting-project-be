@@ -1,6 +1,5 @@
 package com.example.hsap.service;
 
-import com.example.hsap.dto.MemberDTO;
 import com.example.hsap.model.CategoryEntity;
 import com.example.hsap.model.DepartmentEntity;
 import com.example.hsap.model.HistoryEntity;
@@ -75,7 +74,13 @@ public class MemberService {
     public MemberEntity searchByEmail(String email) {
         MemberEntity member = memberRepository.findByEmail(email);
         if (member == null) throw new RuntimeException("해당 계정이 존재하지 않습니다.");
-        else return memberRepository.findByEmail(email);
+        else return member;
+    }
+
+    public MemberEntity searchByEmailAndName(String email, String name, String phoneNumber) {
+        MemberEntity member = memberRepository.findByEmailAndNameAndPhoneNumber(email, name, phoneNumber);
+        if (member == null) throw new RuntimeException("해당 계정이 존재하지 않습니다.");
+        else return member;
     }
 
     public List<String> getEmailList(MemberEntity member) {

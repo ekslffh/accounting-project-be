@@ -172,14 +172,13 @@ class AuthController {
         message.setFrom("01084819926");
         message.setTo(memberDTO.getPhoneNumber());
         // 랜덤 8자리 수 전송
-//        String tempPassword = MessageInfo.numberGen(8, 1);
         String tempPassword = MessageInfo.getNewWord(8);
         message.setText("[HSAP] 임시비밀번호[" + tempPassword + "]로 로그인해주세요.");
         try {
-            this.messageService.send(message);
-            MemberEntity memberEntity = memberService.searchByEmail(memberDTO.getEmail());
+            MemberEntity memberEntity = memberService.searchByEmailAndName(memberDTO.getEmail(), memberDTO.getName(), memberDTO.getPhoneNumber());
             memberEntity.setPassword(passwordEncoder.encode(tempPassword));
             memberService.updatePassword(memberEntity);
+            this.messageService.send(message);
         } catch (NurigoMessageNotReceivedException exception) {
             ResponseDTO response = ResponseDTO.builder().error(exception.getMessage()).build();
             log.error("failed message list: " + exception.getFailedMessageList().toString());
