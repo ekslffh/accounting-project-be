@@ -1,9 +1,6 @@
 package com.example.hsap.service;
 
-import com.example.hsap.model.CategoryEntity;
-import com.example.hsap.model.DepartmentEntity;
-import com.example.hsap.model.HistoryEntity;
-import com.example.hsap.model.MemberEntity;
+import com.example.hsap.model.*;
 import com.example.hsap.repository.DepartmentRepository;
 import com.example.hsap.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -71,12 +68,6 @@ public class MemberService {
         else return optionalMemberEntity.get();
     }
 
-    public MemberEntity searchByEmail(String email) {
-        MemberEntity member = memberRepository.findByEmail(email);
-        if (member == null) throw new RuntimeException("해당 계정이 존재하지 않습니다.");
-        else return member;
-    }
-
     public MemberEntity searchByEmailAndName(String email, String name, String phoneNumber) {
         MemberEntity member = memberRepository.findByEmailAndNameAndPhoneNumber(email, name, phoneNumber);
         if (member == null) throw new RuntimeException("해당 계정이 존재하지 않습니다.");
@@ -112,6 +103,16 @@ public class MemberService {
         findEntity.setPhoneNumber(entity.getPhoneNumber());
         findEntity.setName(entity.getName());
         return memberRepository.save(findEntity);
+    }
+
+    public List<MemberEntity> changeAuthority(MemberEntity entity, String authority) {
+        MemberEntity findEntity = searchById(entity.getId());
+        if (findEntity == null) {
+            throw new RuntimeException("Member is not exists");
+        }
+        findEntity.getAuthorities().clear();
+        findEntity.getAuthorities().add(new AuthorityEntity(authority));
+        return memberRepository.save(findEntity).getDepartment().getMembers();
     }
 
     public MemberEntity updatePassword(MemberEntity entity) {

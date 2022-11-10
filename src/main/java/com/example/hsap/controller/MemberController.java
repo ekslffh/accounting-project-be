@@ -50,6 +50,7 @@ public class MemberController {
     }
 
     @PutMapping("/recover")
+    @PreAuthorize("hasAnyRole('LEADER')")
     public ResponseEntity<?> recover(@RequestBody MemberDTO memberDTO) {
         try {
             List<MemberEntity> entities = memberService.recover(memberDTO.getId());
@@ -135,6 +136,21 @@ public class MemberController {
             return ResponseEntity.ok().body(memberDTO);
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @PutMapping("/change-auth")
+    @PreAuthorize("hasAnyRole('LEADER')")
+    public ResponseEntity<?> changeAuth(@RequestBody MemberDTO memberDTO, @RequestParam String auth) {
+        try {
+            MemberEntity memberEntity = MemberDTO.toEntity(memberDTO);
+            List<MemberEntity> memberEntities = memberService.changeAuthority(memberEntity, auth);
+            List<MemberDTO> memberDTOS = memberEntities.stream().map(MemberDTO::new).toList();
+            ResponseDTO response = ResponseDTO.<MemberDTO>builder().data(memberDTOS).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
         }
     }
 }
