@@ -1,0 +1,20 @@
+branch-defaults:
+  main:
+    environment: PROD-HSAP-BACKEND
+    group_suffix: null
+deploy:
+  artifact: build/libs/hsap-accounting-be-0.0.1-SNAPSHOT.jar
+global:
+  application_name: hsap-accounting-be
+  branch: null
+  default_ec2_keyname: null
+  default_platform: Corretto 17 running on 64bit Amazon Linux 2
+  default_region: ap-northeast-2
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: null
+  repository: null
+  sc: git
+  workspace_type: Application

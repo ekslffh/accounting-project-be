@@ -14,7 +14,7 @@ INSERT INTO MEMBER (`id`, `email`, `password`, `name`, `asset`, `department_id`,
 INSERT INTO MEMBER (`id`, `email`, `password`, `name`, `asset`, `department_id`, `deleted`) values ('3', 'elementary', '$2a$10$qfKy2Md2U8ThUV0w/Om86uQBcvzqog3QAbCt0uhDpJ0olvPKXxn/C', '유초등부', 0, '3', false);
 INSERT INTO MEMBER (`id`, `email`, `password`, `name`, `asset`, `department_id`, `deleted`) values ('4', 'child', '$2a$10$qfKy2Md2U8ThUV0w/Om86uQBcvzqog3QAbCt0uhDpJ0olvPKXxn/C', '유아부', 0, '4', false);
 
-INSERT INTO MEMBER (`id`, `email`, `password`, `name`, `asset`, `department_id`, `deleted`) values ('5', 'user', '$2a$10$qfKy2Md2U8ThUV0w/Om86uQBcvzqog3QAbCt0uhDpJ0olvPKXxn/C', '홍길동', 0, '1', false);
+-- INSERT INTO MEMBER (`id`, `email`, `password`, `name`, `asset`, `department_id`, `deleted`) values ('5', 'user', '$2a$10$qfKy2Md2U8ThUV0w/Om86uQBcvzqog3QAbCt0uhDpJ0olvPKXxn/C', '홍길동', 0, '1', false);
 
 INSERT INTO MEMBER_AUTHORITY(`id`, `authority_name`) values ('0', 'ROLE_ADMIN');
 -- INSERT INTO MEMBER_AUTHORITY(`id`, `authority_name`) values ('1', 'ROLE_LEADER');
@@ -28,7 +28,7 @@ INSERT INTO MEMBER_AUTHORITY(`id`, `authority_name`) values ('3', 'ROLE_LEADER')
 INSERT INTO MEMBER_AUTHORITY(`id`, `authority_name`) values ('4', 'ROLE_LEADER');
 -- INSERT INTO MEMBER_AUTHORITY(`id`, `authority_name`) values ('5', 'ROLE_USER');
 
-INSERT INTO MEMBER_AUTHORITY(`id`, `authority_name`) values ('5', 'ROLE_USER');
+-- INSERT INTO MEMBER_AUTHORITY(`id`, `authority_name`) values ('5', 'ROLE_USER');
 
 
 
