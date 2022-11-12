@@ -30,6 +30,8 @@ public class HistoryEntity extends BaseEntity{
 
     private String memo; // 비고
 
+    private boolean isPayment = Boolean.FALSE;
+
     @ElementCollection
     private List<String> imagePath = new ArrayList<>();
 
@@ -44,4 +46,5 @@ public class HistoryEntity extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
+
 }

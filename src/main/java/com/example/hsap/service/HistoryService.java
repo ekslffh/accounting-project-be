@@ -27,6 +27,7 @@ public class HistoryService {
         Optional<CategoryEntity> category = categoryRepository.findById(historyEntity.getCategory().getId());
         if (category.isPresent()) {
             historyEntity.setCategory(category.get());
+            if (isDepartment) historyEntity.setPayment(true);
             historyRepository.save(historyEntity);
             MemberEntity member = historyEntity.getMember();
             MemberEntity memberEntity = memberRepository.findById(member.getId()).orElseThrow();
@@ -86,6 +87,19 @@ public class HistoryService {
             return historyEntities.stream().filter(history -> history.getUseDate().getYear() == Integer.parseInt(year)).toList();
         }
 
+        else throw new RuntimeException("해당 내역이 존재하지 않습니다.");
+    }
+
+    public List<HistoryEntity> changePaymentOrNot(HistoryEntity historyEntity, String year) {
+        validate(historyEntity);
+        Optional<HistoryEntity> optionalHistory = historyRepository.findById(historyEntity.getId());
+        if (optionalHistory.isPresent()) {
+            HistoryEntity originalHistory = optionalHistory.get();
+            originalHistory.setPayment(!originalHistory.isPayment());
+            historyRepository.save(originalHistory);
+            List<HistoryEntity> historyEntities = originalHistory.getDepartment().getHistories();
+            return historyEntities.stream().filter(historyEntity1 -> historyEntity1.getUseDate().getYear() == Integer.parseInt(year)).toList();
+        }
         else throw new RuntimeException("해당 내역이 존재하지 않습니다.");
     }
 

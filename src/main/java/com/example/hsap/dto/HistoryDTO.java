@@ -27,6 +27,8 @@ public class HistoryDTO {
     private DepartmentDTO department;
     private List<String> imagePath = new ArrayList<>();
 
+    private boolean isPayment;
+
     public HistoryDTO(HistoryEntity historyEntity) {
         this.id = historyEntity.getId();
         this.useDate = historyEntity.getUseDate();
@@ -36,6 +38,7 @@ public class HistoryDTO {
         this.department = new DepartmentDTO(historyEntity.getDepartment());
         this.memo = historyEntity.getMemo();
         this.imagePath = historyEntity.getImagePath();
+        this.isPayment = historyEntity.isPayment();
         this.category = new CategoryDTO(historyEntity.getCategory());
         this.createdAt = historyEntity.getCreatedAt();
         this.updatedAt = historyEntity.getUpdatedAt();
@@ -50,6 +53,7 @@ public class HistoryDTO {
                     .income(dto.getIncome())
                     .expenditure(dto.getExpenditure())
                     .memo(dto.getMemo())
+                    .isPayment(dto.isPayment())
                     .category(categoryEntity)
                     .imagePath(dto.getImagePath())
                     .build();

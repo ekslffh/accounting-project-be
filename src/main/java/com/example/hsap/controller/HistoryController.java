@@ -147,6 +147,21 @@ public class HistoryController {
         }
     }
 
+    @PutMapping("/payment")
+    @PreAuthorize("hasAnyRole('ROLE_LEADER')")
+    public ResponseEntity<?> payment(@RequestParam(required = false) String year, @RequestBody HistoryDTO historyDTO) {
+        try {
+            HistoryEntity history = HistoryEntity.builder().id(historyDTO.getId()).isPayment(historyDTO.isPayment()).build();
+            List<HistoryEntity> historyEntities = historyService.changePaymentOrNot(history, year);
+            List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
+            ResponseDTO response = ResponseDTO.<HistoryDTO>builder().data(historyDTOS).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @DeleteMapping("/{constructor}")
     public ResponseEntity<?> delete(
             @AuthenticationPrincipal MemberDetails principal,
