@@ -77,7 +77,7 @@ public class CategoryService {
                 isTitleChanged = true;
             }
             if (categoryEntity.getDescription() != null) original.setDescription(categoryEntity.getDescription());
-
+            original.setAmount(categoryEntity.getAmount());
             // 중복 검사 : 같은 부서 내에 같은 이름의 카테고리가 존재하면 안된다.
             // 예외 : 만약 타이틀이 바뀌지 않았다면 넘어가기 (타이틀이 바뀌지 않은 상태에서 이 로직을 수행 시에 기존의 타이틀과의 충돌이 발생한다.)
             if (isTitleChanged && categoryRepository.existsByTitleAndDepartment(categoryEntity.getTitle(), original.getDepartment())) {

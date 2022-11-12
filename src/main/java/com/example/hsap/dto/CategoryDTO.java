@@ -15,6 +15,8 @@ public class CategoryDTO {
     private String id;
     private String title;
     private String description;
+
+    private int amount;
     private DepartmentDTO department;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -23,6 +25,7 @@ public class CategoryDTO {
         this.id = entity.getId();
         this.title = entity.getTitle();
         this.description = entity.getDescription();
+        this.amount = entity.getAmount();
         this.department = new DepartmentDTO(entity.getDepartment());
         this.createdAt = entity.getCreatedAt();
         this.updatedAt = entity.getUpdatedAt();
@@ -32,6 +35,7 @@ public class CategoryDTO {
         entity.setId(dto.getId());
         entity.setTitle(dto.getTitle());
         entity.setDescription(dto.getDescription());
+        entity.setAmount(dto.getAmount());
         entity.setDepartment(DepartmentDTO.toEntity(dto.getDepartment()));
         entity.setCreatedAt(dto.getCreatedAt());
         entity.setUpdatedAt(dto.getUpdatedAt());

@@ -27,6 +27,8 @@ public class CategoryEntity extends BaseEntity{
 
     private String description;
 
+    private int amount; // 금액
+
     private boolean deleted = Boolean.FALSE;
 
     @ManyToOne
