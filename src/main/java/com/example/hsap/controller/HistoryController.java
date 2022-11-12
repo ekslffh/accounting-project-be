@@ -148,7 +148,7 @@ public class HistoryController {
     }
 
     @PutMapping("/payment")
-    @PreAuthorize("hasAnyRole('ROLE_LEADER')")
+    @PreAuthorize("hasAnyRole('LEADER')")
     public ResponseEntity<?> payment(@RequestParam(required = false) String year, @RequestBody HistoryDTO historyDTO) {
         try {
             HistoryEntity history = HistoryEntity.builder().id(historyDTO.getId()).isPayment(historyDTO.isPayment()).build();

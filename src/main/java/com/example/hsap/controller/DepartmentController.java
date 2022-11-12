@@ -53,6 +53,33 @@ public class DepartmentController {
        }
     }
 
+    @PutMapping("/notice")
+    @PreAuthorize("hasAnyRole('LEADER')")
+    public ResponseEntity<?> changeNotice(@RequestBody DepartmentDTO departmentDTO) {
+        try {
+            DepartmentEntity department = DepartmentDTO.toEntity(departmentDTO);
+            DepartmentEntity savedDepartment = departmentService.saveNotice(department);
+            DepartmentDTO dto = new DepartmentDTO(savedDepartment);
+            return ResponseEntity.ok().body(dto);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @GetMapping("/notice")
+    public ResponseEntity<?> getNotice(@AuthenticationPrincipal MemberDetails principal) {
+        try {
+            MemberEntity member = memberService.searchById(principal.getUserId());
+            DepartmentDTO dto = DepartmentDTO.builder().notice(member.getDepartment().getNotice()).build();
+            return ResponseEntity.ok().body(dto);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+
     // 전체 부서 조회
     @GetMapping("/all")
     public ResponseEntity<?> retrieveAll() {

@@ -38,6 +38,14 @@ public class DepartmentService {
         else return department;
     }
 
+    public DepartmentEntity saveNotice(DepartmentEntity departmentEntity) {
+        validate(departmentEntity);
+        DepartmentEntity department = departmentRepository.findByName(departmentEntity.getName());
+        if (department == null) throw new RuntimeException("해당 부서가 존재하지 않습니다.");
+        department.setNotice(departmentEntity.getNotice());
+        return departmentRepository.save(department);
+    }
+
     // 수정 가능 내역: 이름
     public List<DepartmentEntity> update(DepartmentEntity departmentEntity) {
            validate(departmentEntity);

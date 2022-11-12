@@ -26,6 +26,8 @@ public class DepartmentEntity extends BaseEntity {
 
     private int asset;
 
+    private String notice = "";
+
     @OneToMany(mappedBy = "department")
     @ToString.Exclude
     List<MemberEntity> members = new ArrayList<>();
