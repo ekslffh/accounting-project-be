@@ -42,7 +42,7 @@ public class HistoryController {
             List<String> path = new ArrayList<>();
             if (receipts != null) {
                 for (MultipartFile receipt : receipts) {
-                    path.add(s3Upload.upload(receipt, dto.getUseDate()));
+                    path.add(s3Upload.upload(receipt, dto.getUseDate(), memberEntity.getDepartment().getName()));
                 }
             }
             HistoryEntity entity = HistoryDTO.toEntity(dto);

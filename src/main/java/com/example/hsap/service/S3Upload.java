@@ -26,7 +26,7 @@ public class S3Upload {
         return useDate.getYear() + "/" + useDate.getMonth() + "/";
     }
 
-    public String upload(MultipartFile multipartFile , LocalDateTime useDate) throws IOException {
+    public String upload(MultipartFile multipartFile , LocalDateTime useDate, String department) throws IOException {
         String s3FileName = UUID.randomUUID().toString();
         long size = multipartFile.getSize();
 
@@ -34,7 +34,7 @@ public class S3Upload {
         objMeta.setContentType(multipartFile.getContentType());
         objMeta.setContentLength(size);
 
-        String currentFilePath = "receipts/" + getPathByUseDate(useDate) + s3FileName;
+        String currentFilePath = "receipts/" + department + "/" + getPathByUseDate(useDate) + s3FileName;
         amazonS3.putObject(
                 new PutObjectRequest(bucket, currentFilePath, multipartFile.getInputStream(), objMeta)
                         .withCannedAcl(CannedAccessControlList.PublicRead)
