@@ -41,6 +41,7 @@ out/
 application.yml
 application-dev.yaml
 application-prod.yaml
+data.sql
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
