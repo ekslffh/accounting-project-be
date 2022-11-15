@@ -116,18 +116,19 @@ public class HistoryController {
             )
     {
         try {
+            MemberEntity member = memberService.searchById(principal.getUserId());
             List<String> path = new ArrayList<>();
 
             if (receipts != null) {
                 for (MultipartFile receipt : receipts) {
-                    path.add(s3Upload.update(receipt, dto.getUseDate(), dto.getImagePath()));
+                    path.add(s3Upload.update(receipt, dto.getUseDate(), dto.getImagePath(), member.getDepartment().getName()));
                 }
             }
 
             if (path.size() != 0) dto.setImagePath(path);
 
             HistoryEntity historyEntity = HistoryDTO.toEntity(dto);
-            historyEntity.setMember(memberService.searchById(principal.getUserId()));
+            historyEntity.setMember(member);
             List<HistoryEntity> historyEntities =
                     constructor.equals("department")
                     ?

@@ -39,6 +39,8 @@ out/
 
 ### application.yml ###
 application.yml
+application-dev.yaml
+application-prod.yaml
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

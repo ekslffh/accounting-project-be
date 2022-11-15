@@ -18,8 +18,8 @@ spring:
 cloud:
   aws:
     credentials:
-      accessKey: AKIAVFKKDIDCKVUMKXNH
-      secretKey: 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
+      accessKey: AKIAVFKKDIDCLJTR4DEX
+      secretKey: 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
     s3:
       bucket: hsap-bucket
       dir: /receipt

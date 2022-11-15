@@ -33,6 +33,7 @@ public class HistoryEntity extends BaseEntity{
     private boolean isPayment = Boolean.FALSE;
 
     @ElementCollection
+    @Column(length = 10000)
     private List<String> imagePath = new ArrayList<>();
 
     @ManyToOne

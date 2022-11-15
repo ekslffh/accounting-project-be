@@ -26,6 +26,7 @@ public class DepartmentEntity extends BaseEntity {
 
     private int asset;
 
+    @Column(length = 100000)
     private String notice = "";
 
     @OneToMany(mappedBy = "department")

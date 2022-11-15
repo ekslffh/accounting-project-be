@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -27,13 +30,13 @@ public class S3Upload {
     }
 
     public String upload(MultipartFile multipartFile , LocalDateTime useDate, String department) throws IOException {
-        String s3FileName = UUID.randomUUID().toString();
+        String s3FileName = UUID.randomUUID() + "-" + multipartFile.getOriginalFilename();
         long size = multipartFile.getSize();
 
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setContentType(multipartFile.getContentType());
         objMeta.setContentLength(size);
-
+        String contentType = multipartFile.getContentType();
         String currentFilePath = "receipts/" + department + "/" + getPathByUseDate(useDate) + s3FileName;
         amazonS3.putObject(
                 new PutObjectRequest(bucket, currentFilePath, multipartFile.getInputStream(), objMeta)
@@ -45,8 +48,8 @@ public class S3Upload {
         return imagePath;
     }
 
-    public String update(MultipartFile multipartFile, LocalDateTime useDate, List<String> urlList) throws IOException {
-        String s3FileName = UUID.randomUUID().toString();
+    public String update(MultipartFile multipartFile, LocalDateTime useDate, List<String> urlList, String department) throws IOException {
+        String s3FileName = UUID.randomUUID() + "-" + multipartFile.getOriginalFilename();
         long size = multipartFile.getSize();
 
         ObjectMetadata objMeta = new ObjectMetadata();
@@ -56,13 +59,15 @@ public class S3Upload {
         // 기존 이미지 삭제
         if (urlList != null) {
             for (String url : urlList) {
+//                "https://hsap-bucket.s3.ap-northeast-2.amazonaws.com/receipts/%EC%9C%A0%EC%95%84%EB%B6%80/2022/NOVEMBER/ab12a071-80e4-4eae-bb93-e30aeca4b81b"
                 String path = url.substring("https://hsap-bucket.s3.ap-northeast-2.amazonaws.com/".length());
                 amazonS3.deleteObject(bucket, path);
             }
         }
+        amazonS3.deleteObject(bucket, "abc.jpeg");
 
         // s3 업로드
-        String currentFilePath = "receipts/" + getPathByUseDate(useDate) + s3FileName;
+        String currentFilePath = "receipts/" + department + "/" + getPathByUseDate(useDate) + s3FileName;
         amazonS3.putObject(
                 new PutObjectRequest(bucket, currentFilePath, multipartFile.getInputStream(), objMeta)
                         .withCannedAcl(CannedAccessControlList.PublicRead)
@@ -73,11 +78,11 @@ public class S3Upload {
         return imagePath;
     }
 
-    public void remove(List<String> urlList) {
+    public void remove(List<String> urlList) throws UnsupportedEncodingException {
         // 기존 이미지 삭제
         if (urlList == null) return;
         for (String url : urlList) {
-            String path = url.substring("https://hsap-bucket.s3.ap-northeast-2.amazonaws.com/".length());
+            String path = URLDecoder.decode(url.substring("https://hsap-bucket.s3.ap-northeast-2.amazonaws.com/".length()), StandardCharsets.UTF_8);
             amazonS3.deleteObject(bucket, path);
         }
     }
