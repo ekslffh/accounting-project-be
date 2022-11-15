@@ -38,10 +38,7 @@ out/
 .vscode/
 
 ### application.yml ###
-application.yml
-application-dev.yaml
-application-prod.yaml
-data.sql
+/src/main/resources/**
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
