@@ -41,4 +41,8 @@ public class DepartmentEntity extends BaseEntity {
     @ToString.Exclude
     private List<CategoryEntity> categories = new ArrayList<>();
 
+    @OneToMany(mappedBy = "department")
+    @ToString.Exclude
+    private List<PeopleEntity> peoples = new ArrayList<>();
+
 }

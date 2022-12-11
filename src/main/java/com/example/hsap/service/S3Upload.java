@@ -57,14 +57,7 @@ public class S3Upload {
         objMeta.setContentLength(size);
 
         // 기존 이미지 삭제
-        if (urlList != null) {
-            for (String url : urlList) {
-//                "https://hsap-bucket.s3.ap-northeast-2.amazonaws.com/receipts/%EC%9C%A0%EC%95%84%EB%B6%80/2022/NOVEMBER/ab12a071-80e4-4eae-bb93-e30aeca4b81b"
-                String path = url.substring("https://hsap-bucket.s3.ap-northeast-2.amazonaws.com/".length());
-                amazonS3.deleteObject(bucket, path);
-            }
-        }
-        amazonS3.deleteObject(bucket, "abc.jpeg");
+        remove(urlList);
 
         // s3 업로드
         String currentFilePath = "receipts/" + department + "/" + getPathByUseDate(useDate) + s3FileName;

@@ -68,10 +68,10 @@ public class DepartmentController {
     }
 
     @GetMapping("/notice")
-    public ResponseEntity<?> getNotice(@AuthenticationPrincipal MemberDetails principal) {
+    public ResponseEntity<?> getNotice(@RequestParam String department) {
         try {
-            MemberEntity member = memberService.searchById(principal.getUserId());
-            DepartmentDTO dto = DepartmentDTO.builder().notice(member.getDepartment().getNotice()).build();
+            DepartmentEntity departmentEntity = departmentService.retrieve(department);
+            DepartmentDTO dto = DepartmentDTO.builder().notice(departmentEntity.getNotice()).build();
             return ResponseEntity.ok().body(dto);
         } catch (Exception ex) {
             ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
@@ -165,6 +165,20 @@ public class DepartmentController {
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             ResponseDTO response = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @GetMapping("/peoples")
+    @PreAuthorize("hasAnyRole('LEADER')")
+    public ResponseEntity<?> getPeoples(@RequestParam String name) {
+        try {
+            List<PeopleEntity> entities = departmentService.getPeoples(name);
+            List<PeopleDTO> dtos = entities.stream().map(PeopleDTO::new).toList();
+            ResponseDTO response = ResponseDTO.<PeopleDTO>builder().data(dtos).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception ex) {
+            ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();
             return ResponseEntity.badRequest().body(response);
         }
     }

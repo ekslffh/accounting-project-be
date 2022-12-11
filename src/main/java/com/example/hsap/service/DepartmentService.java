@@ -1,9 +1,6 @@
 package com.example.hsap.service;
 
-import com.example.hsap.model.CategoryEntity;
-import com.example.hsap.model.DepartmentEntity;
-import com.example.hsap.model.HistoryEntity;
-import com.example.hsap.model.MemberEntity;
+import com.example.hsap.model.*;
 import com.example.hsap.repository.DepartmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -90,6 +87,11 @@ public class DepartmentService {
     public List<CategoryEntity> getCategories(String name) {
         DepartmentEntity department = departmentRepository.findByName(name);
         return department.getCategories();
+    }
+
+    public List<PeopleEntity> getPeoples(String name) {
+        DepartmentEntity department = departmentRepository.findByName(name);
+        return department.getPeoples();
     }
 
     // 부서의 사용내역들 조회하기

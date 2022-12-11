@@ -245,6 +245,14 @@ class AuthController {
             entity.setPassword(passwordEncoder.encode(dto.getPassword()));
             MemberEntity savedEntity = memberService.create(entity);
             MemberDTO responseDTO = new MemberDTO(savedEntity);
+
+            // 나한테 회원가입 알림 보내기
+            Message message = new Message();
+            message.setFrom("01084819926");
+            message.setTo("01084819926");
+            message.setText(responseDTO.getName() + "님이 회원가입 하였습니다.");
+            this.messageService.send(message);
+
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception ex) {
             ResponseDTO response = ResponseDTO.builder().error(ex.getMessage()).build();

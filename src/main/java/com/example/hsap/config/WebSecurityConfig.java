@@ -36,7 +36,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
                 .antMatchers(
-                        "/h2-console/**"
+                        "/h2-console/**", "/swagger-ui.html", "/swagger-resources/**", "/swagger/**"
                 );
     }
 
@@ -57,7 +57,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                    .antMatchers("/", "/auth/**", "/department/all", "/h2-console/**").permitAll()
+                    .antMatchers("/", "/auth/**", "/department/all").permitAll()
                 .anyRequest()
                     .authenticated();
 
@@ -66,4 +66,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 CorsFilter.class
         );
     }
+
 }
