@@ -38,4 +38,7 @@ public class PeopleEntity extends BaseEntity {
 
     private String memo;
 
+    public int getStatusNumber() {
+        return status.level;
+    }
 }

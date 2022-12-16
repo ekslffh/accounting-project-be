@@ -7,6 +7,8 @@ import com.example.hsap.repository.PeopleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,11 +21,18 @@ public class PeopleService {
 
     private final DepartmentRepository departmentRepository;
 
+    public static List<PeopleEntity> sortingPeople(List<PeopleEntity> peopleEntities) {
+        peopleEntities.sort(Comparator
+                .comparing(PeopleEntity::getStatusNumber)
+                .thenComparing(PeopleEntity::getName)
+        );
+        return peopleEntities;
+    }
     // create
     public List<PeopleEntity> create(PeopleEntity peopleEntity) {
         valid(peopleEntity);
         PeopleEntity savedPeople = peopleRepository.save(peopleEntity);
-        return savedPeople.getDepartment().getPeoples();
+        return sortingPeople(savedPeople.getDepartment().getPeoples());
     }
     // read
     public List<PeopleEntity> readAll() {
@@ -35,7 +44,7 @@ public class PeopleService {
         if (foundDepartment == null) {
             throw new RuntimeException("해당 부서가 존재하지 않습니다.");
         }
-        return foundDepartment.getPeoples();
+        return sortingPeople(foundDepartment.getPeoples());
     }
 
     // update
@@ -53,7 +62,7 @@ public class PeopleService {
             original.setGender(peopleEntity.getGender());
             original.setStatus(peopleEntity.getStatus());
             original.setMemo(peopleEntity.getMemo());
-            return peopleRepository.save(original).getDepartment().getPeoples();
+            return sortingPeople(peopleRepository.save(original).getDepartment().getPeoples());
         }
         else throw new RuntimeException("해당 객체가 존재하지 않습니다.");
     }
@@ -62,7 +71,7 @@ public class PeopleService {
     public List<PeopleEntity> delete(String id, String department) {
             peopleRepository.deleteById(id);
             DepartmentEntity departmentEntity = departmentRepository.findByName(department);
-            return departmentEntity.getPeoples();
+            return sortingPeople(departmentEntity.getPeoples());
     }
 
     // valid

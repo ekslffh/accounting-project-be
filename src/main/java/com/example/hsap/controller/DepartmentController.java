@@ -5,6 +5,7 @@ import com.example.hsap.model.*;
 import com.example.hsap.security.MemberDetails;
 import com.example.hsap.service.DepartmentService;
 import com.example.hsap.service.MemberService;
+import com.example.hsap.service.PeopleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -173,7 +174,7 @@ public class DepartmentController {
     @PreAuthorize("hasAnyRole('LEADER')")
     public ResponseEntity<?> getPeoples(@RequestParam String name) {
         try {
-            List<PeopleEntity> entities = departmentService.getPeoples(name);
+            List<PeopleEntity> entities = PeopleService.sortingPeople(departmentService.getPeoples(name));
             List<PeopleDTO> dtos = entities.stream().map(PeopleDTO::new).toList();
             ResponseDTO response = ResponseDTO.<PeopleDTO>builder().data(dtos).build();
             return ResponseEntity.ok().body(response);
