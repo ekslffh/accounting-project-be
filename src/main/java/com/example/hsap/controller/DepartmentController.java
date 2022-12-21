@@ -15,6 +15,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -202,4 +205,48 @@ public class DepartmentController {
         }
     }
 
+    @GetMapping("/monthly-chart")
+    @PreAuthorize("hasAnyRole('LEADER')")
+    public ResponseEntity<?> getCategoryChart(@RequestParam String name, @AuthenticationPrincipal MemberDetails principal, @RequestParam(required = false) String year) {
+        // 관리자 권한이 아닌 리더의 권한으로 다른 부서의 내역을 확인할 수 없다.
+        if (principal.getAuthorities().stream().findFirst().get().toString().equals("ROLE_LEADER") && !memberService.searchById(principal.getUserId()).getDepartment().getName().equals(name))
+            throw new AccessDeniedException("본인이 속한 부서 이외에 다른 부서 열람의 권한이 없습니다.");
+        try {
+            List<CategoryEntity> categoryEntities = departmentService.getCategories(name);
+            List<HistoryEntity> historyEntities = departmentService.getHistories(name, year);
+
+            // 부서별 카테고리, 내역
+            List<CategoryDTO> categoryDTOS = categoryEntities.stream().map(CategoryDTO::new).toList();
+            List<HistoryDTO> historyDTOS = historyEntities.stream().map(HistoryDTO::new).toList();
+
+            // 내역 날짜별 정렬
+//            historyDTOS.sort(Comparator.comparing(HistoryDTO::getUseDate));
+
+            List<MonthlyChart> monthlyCharts = new ArrayList<>();
+            // 월별 카테고리별 정리
+            categoryDTOS.forEach(category -> {
+                MonthlyChart monthlyChart = new MonthlyChart();
+                monthlyChart.setCategoryDTO(category);
+                List<HistoryDTO> tempHistories = historyDTOS.stream().filter(historyDTO -> historyDTO.getCategory().getId().equals(category.getId())).toList();
+                tempHistories.forEach(tempHistory -> {
+                    monthlyChart.addIncome(tempHistory.getUseDate().getMonthValue() - 1, tempHistory.getIncome());
+                    monthlyChart.addExpenditure(tempHistory.getUseDate().getMonthValue() - 1, tempHistory.getExpenditure());
+                });
+                monthlyCharts.add(monthlyChart);
+            });
+            ResponseDTO response = ResponseDTO.<MonthlyChart>builder().data(monthlyCharts).build();
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            ResponseDTO response = ResponseDTO.builder().error(e.getMessage()).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
 }
+//    public static List<PeopleEntity> sortingPeople(List<PeopleEntity> peopleEntities) {
+//        peopleEntities.sort(Comparator
+//                .comparing(PeopleEntity::getStatusNumber)
+//                .thenComparing(PeopleEntity::getName)
+//        );
+//        return peopleEntities;
+//    }

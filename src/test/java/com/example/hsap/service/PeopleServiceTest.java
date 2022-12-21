@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
@@ -36,6 +39,19 @@ class PeopleServiceTest {
 
         List<PeopleEntity> peopleEntityList = peopleService.create(peopleEntity);
         System.out.println(peopleEntityList);
+    }
+
+    @Test
+    public void test() {
+//        int[] ints = new int[12];
+//        ints[4] = 2;
+//        ints[10] = 12;
+//        System.out.println(ints);
+        LocalDateTime now = LocalDateTime.now();
+        System.out.println("32".getClass().getTypeName());
+        System.out.println(now.getClass().getTypeName());
+        System.out.println(now.getMonth().getClass().getTypeName());
+        System.out.println(now.getMonthValue() + 4);
     }
 
 }
