@@ -15,9 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -243,10 +241,3 @@ public class DepartmentController {
     }
 
 }
-//    public static List<PeopleEntity> sortingPeople(List<PeopleEntity> peopleEntities) {
-//        peopleEntities.sort(Comparator
-//                .comparing(PeopleEntity::getStatusNumber)
-//                .thenComparing(PeopleEntity::getName)
-//        );
-//        return peopleEntities;
-//    }
